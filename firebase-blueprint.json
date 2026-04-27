@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "Achievement": {
+      "title": "Achievement",
+      "description": "A personal milestone or recorded activity.",
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The description of the achievement."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the achievement occurred."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["work", "personal", "growth", "other"],
+          "description": "Category of the achievement."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who posted."
+        }
+      },
+      "required": ["text", "timestamp", "type", "userId"]
+    }
+  },
+  "firestore": {
+    "achievements": {
+      "schema": "Achievement",
+      "description": "Collection of all personal achievements."
+    }
+  }
+}

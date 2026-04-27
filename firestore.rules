@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(email) {
+      return isSignedIn() && request.auth.token.email == email && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Achievement Validation
+    function isValidAchievement(data) {
+      return data.keys().hasAll(['text', 'timestamp', 'type', 'userId']) &&
+             data.keys().size() == 4 &&
+             data.text is string && data.text.size() > 0 && data.text.size() <= 1000 &&
+             data.type in ['work', 'personal', 'growth', 'other'] &&
+             data.userId == request.auth.uid &&
+             data.timestamp == request.time;
+    }
+
+    match /achievements/{achievementId} {
+      // Public read for the art site feel
+      allow read: if true;
+      
+      // Only the specific owner can write
+      allow create: if isOwner('maximion96@gmail.com') && 
+                      isValidAchievement(incoming());
+      
+      allow update: if isOwner('maximion96@gmail.com') && 
+                      isValidAchievement(incoming()) &&
+                      incoming().userId == existing().userId &&
+                      incoming().timestamp == existing().timestamp; // Immutable fields
+
+      allow delete: if isOwner('maximion96@gmail.com');
+    }
+  }
+}

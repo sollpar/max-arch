@@ -21,33 +21,43 @@ const firebaseConfig: AxiomFirebaseConfig = {
 };
 
 // 2. Safe Initialization
-let app;
+const getEffectiveConfig = async () => {
+  // Check if we have standard env vars (Netlify)
+  const isEnvValid = firebaseConfig.apiKey && 
+                    !firebaseConfig.apiKey.startsWith('VITE_') && 
+                    firebaseConfig.apiKey !== 'undefined';
 
-// Simple check to see if we have valid environment variables
-const hasEnvVars = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'UNDEFINED' && !firebaseConfig.apiKey.includes('VITE_');
+  if (isEnvValid) {
+    return firebaseConfig;
+  }
 
-if (hasEnvVars) {
-  // Production Mode (Netlify)
-  app = initializeApp(firebaseConfig);
-} else {
-  // Local Dev Mode / Build Fallback
-  // We initialize with what we have, but we'll try to load the config file in the background if possible
-  app = initializeApp(firebaseConfig.apiKey ? firebaseConfig : { ...firebaseConfig, apiKey: "placeholder" });
+  // Fallback for AI Studio Dev Mode
+  try {
+    // @ts-ignore - this file might not exist in production
+    const local = await import('../../firebase-applet-config.json');
+    if (local && local.default) {
+      console.log("Firebase: Using local config fallback");
+      return {
+        ...local.default,
+        firestoreDatabaseId: local.default.firestoreDatabaseId || '(default)'
+      };
+    }
+  } catch (e) {
+    // No local config found
+  }
   
-  // Background attempt to load local config for AI Studio environment
-  import('../../firebase-applet-config.json')
-    .then((local) => {
-      if (local && local.default) {
-        console.log("Found local Firebase config, re-initializing...");
-        // In a real app we might need to reset services, but for this dev-only fallback it's often okay
-      }
-    })
-    .catch(() => {
-      if (!hasEnvVars) {
-        console.error("CRITICAL: Firebase configuration missing. If this is Netlify, set your VITE_ environment variables.");
-      }
+  // If we reach here and still don't have an API key, the app will fail
+  if (!isEnvValid) {
+    console.error("CRITICAL: Firebase API Key is missing. Check your Netlify environment variables (must start with VITE_).", {
+      availableKeys: Object.keys(firebaseConfig).filter(k => !!(firebaseConfig as any)[k])
     });
-}
+  }
+
+  return firebaseConfig;
+};
+
+// Initialize
+const app = initializeApp(await getEffectiveConfig());
 
 export const auth = getAuth(app);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId === '(default)' ? undefined : firebaseConfig.firestoreDatabaseId);

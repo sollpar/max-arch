@@ -18,7 +18,19 @@ import {
   doc,
   getDocFromServer
 } from 'firebase/firestore';
-import firebaseConfig from '../../firebase-applet-config.json';
+
+// Firebase Configuration
+// Environment variables are preferred for production deployments (Cloudflare/Netlify)
+// Hardcoded fallbacks ensure the AI Studio preview remains functional without manual setup
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyClfIBEluPgHbaANDkdlYxaQIaEnALUtyg',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'gen-lang-client-0316692566.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'gen-lang-client-0316692566',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'gen-lang-client-0316692566.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '693219157184',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:693219157184:web:9f31d41f8d23e17c10b925',
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || 'ai-studio-6188f3e0-e07c-40a3-bfce-58d5070cf695'
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

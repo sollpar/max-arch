@@ -37,16 +37,6 @@ export default function DashboardStats({ achievements }: StatsProps) {
     <div className="pt-4 border-t-2 border-neutral-100 mt-8" id="dashboard-stats">
       <div className="flex items-center justify-between mb-4 px-0.5">
         <span className="text-[7.5px] font-mono text-neutral-300 uppercase tracking-[0.2em] font-medium">momentum_matrix</span>
-        <div className="flex gap-4">
-          <div className="flex flex-col items-end">
-            <span className="text-[6.5px] font-mono text-neutral-200 uppercase tracking-tighter">streak</span>
-            <span className="text-[11px] font-sans font-semibold text-black leading-none">{streak}d</span>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-[6.5px] font-mono text-neutral-200 uppercase tracking-tighter">velocity</span>
-            <span className="text-[11px] font-sans font-semibold text-black leading-none">{velocity}</span>
-          </div>
-        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-4 px-0.5">

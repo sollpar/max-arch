@@ -1,20 +1,28 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Axiom Archive
 
-# Run and deploy your AI Studio app
+A minimal achievement tracking system.
 
-This contains everything you need to run your app locally.
+## Setup
 
-View your app in AI Studio: https://ai.studio/apps/6188f3e0-e07c-40a3-bfce-58d5070cf695
+1. Copy `.env.example` to `.env`.
+2. Fill in your Firebase configuration variables:
+   - `VITE_FIREBASE_API_KEY`
+   - `VITE_FIREBASE_AUTH_DOMAIN`
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_STORAGE_BUCKET`
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - `VITE_FIREBASE_APP_ID`
+   - `VITE_FIREBASE_FIRESTORE_DATABASE_ID` (Optional, defaults to `(default)`)
 
-## Run Locally
+## Development
 
-**Prerequisites:**  Node.js
+```bash
+npm install
+npm run dev
+```
 
+## Deployment (Netlify)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+This project is configured for Netlify. Ensure you add the environment variables listed above in the Netlify dashboard under **Site settings > Environment variables**.
+
+The `netlify.toml` file handles the build command and SPA routing.

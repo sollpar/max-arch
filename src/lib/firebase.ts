@@ -8,8 +8,7 @@ interface AxiomFirebaseConfig extends FirebaseOptions {
   firestoreDatabaseId?: string;
 }
 
-// 1. Configuration with Netlify/Production Environment Variables
-// Vite requires VITE_ prefix to expose variables to the client
+// 1. Initial configuration from Vite environment variables (Netlify/Production)
 const firebaseConfig: AxiomFirebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -20,47 +19,53 @@ const firebaseConfig: AxiomFirebaseConfig = {
   firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)'
 };
 
-// 2. Safe Initialization
-const getEffectiveConfig = async () => {
-  // Check if we have standard env vars (Netlify)
-  const isEnvValid = firebaseConfig.apiKey && 
-                    !firebaseConfig.apiKey.startsWith('VITE_') && 
-                    firebaseConfig.apiKey !== 'undefined';
+// 2. Resolve final config with defensive checks
+const resolveConfig = async (): Promise<AxiomFirebaseConfig> => {
+  const envKey = firebaseConfig.apiKey;
+  
+  // A valid key should exist and not be a placeholder string like "undefined" or the variable name itself
+  const isEnvValid = !!envKey && 
+                    envKey !== 'undefined' && 
+                    envKey !== '' && 
+                    !envKey.includes('VITE_');
 
   if (isEnvValid) {
     return firebaseConfig;
   }
 
-  // Fallback for AI Studio Dev Mode
-  try {
-    // @ts-ignore - this file might not exist in production
-    const local = await import('../../firebase-applet-config.json');
-    if (local && local.default) {
-      console.log("Firebase: Using local config fallback");
-      return {
-        ...local.default,
-        firestoreDatabaseId: local.default.firestoreDatabaseId || '(default)'
-      };
+  // Fallback for AI Studio Dev Mode / Local Development
+  if (import.meta.env.DEV) {
+    try {
+      // @ts-ignore - Local dev only file
+      const local = await import('../../firebase-applet-config.json');
+      if (local && local.default) {
+        console.info("Firebase: Using local fallback configuration");
+        return {
+          ...local.default,
+          firestoreDatabaseId: local.default.firestoreDatabaseId || '(default)'
+        };
+      }
+    } catch (e) {
+      // Silent catch - expected in production
     }
-  } catch (e) {
-    // No local config found
-  }
-  
-  // If we reach here and still don't have an API key, the app will fail
-  if (!isEnvValid) {
-    console.error("CRITICAL: Firebase API Key is missing. Check your Netlify environment variables (must start with VITE_).", {
-      availableKeys: Object.keys(firebaseConfig).filter(k => !!(firebaseConfig as any)[k])
-    });
   }
 
   return firebaseConfig;
 };
 
-// Initialize
-const app = initializeApp(await getEffectiveConfig());
+// Modern Vite/ESM support for top-level await
+const finalConfig = await resolveConfig();
+
+// Error logging for misconfigured environments
+if (!finalConfig.apiKey || finalConfig.apiKey === 'undefined' || finalConfig.apiKey.includes('VITE_')) {
+  console.error("CRITICAL: Firebase API Key is missing or invalid. Deployment will fail.");
+  console.info("Target Domain:", window.location.hostname);
+}
+
+const app = initializeApp(finalConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId === '(default)' ? undefined : firebaseConfig.firestoreDatabaseId);
+export const db = getFirestore(app, finalConfig.firestoreDatabaseId === '(default)' ? undefined : finalConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 
 export const signIn = async () => {

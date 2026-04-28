@@ -1,58 +1,51 @@
 // src/lib/firebase.ts
-import { initializeApp, FirebaseOptions } from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { getFirestore, collection, addDoc, updateDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, limit, startAfter, where, getDocs } from 'firebase/firestore';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  updateDoc, 
+  query, 
+  orderBy, 
+  onSnapshot, 
+  serverTimestamp, 
+  Timestamp, 
+  limit, 
+  startAfter, 
+  where, 
+  getDocs,
+  doc,
+  getDocFromServer
+} from 'firebase/firestore';
+import firebaseConfig from '../../firebase-applet-config.json';
 
-// Define configuration shape
-interface AxiomFirebaseConfig extends FirebaseOptions {
-  firestoreDatabaseId?: string;
-}
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-// 1. Initial configuration from Vite environment variables (Netlify/Production)
-// Defensive cleanup for common copy-paste errors
-const sanitizeVar = (val: any) => {
-  if (typeof val !== 'string') return val;
-  let cleaned = val.trim();
-  
-  // Handle "VITE_VAR=VALUE" or "VAR=VALUE" formats
-  if (cleaned.includes('=') && /^[A-Z0-9_]+=/.test(cleaned)) {
-    cleaned = cleaned.split('=')[1];
-  }
-
-  return cleaned
-    .replace(/,$/, '') // Remove trailing comma
-    .replace(/^["']|["']$/g, '') // Remove surrounding quotes
-    .replace(/[\n\r]/g, ''); // Remove newlines
-};
-
-const config: AxiomFirebaseConfig = {
-  apiKey: sanitizeVar(import.meta.env.VITE_FIREBASE_API_KEY),
-  authDomain: sanitizeVar(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
-  projectId: sanitizeVar(import.meta.env.VITE_FIREBASE_PROJECT_ID),
-  storageBucket: sanitizeVar(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
-  messagingSenderId: sanitizeVar(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
-  appId: sanitizeVar(import.meta.env.VITE_FIREBASE_APP_ID),
-  firestoreDatabaseId: sanitizeVar(import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID) || '(default)'
-};
-
-// 2. Resolve final config
-const k = config.apiKey;
-const isEnvValid = !!k && k !== 'undefined' && k !== '' && !k.startsWith('VITE_') && k.length > 20;
-
-let app;
-if (isEnvValid) {
-  app = initializeApp(config);
-} else {
-  if (import.meta.env.PROD) {
-    console.error("CRITICAL: No valid Firebase API key found in Netlify environment variables.");
-  }
-  // Initialize with whatever we have (expected to fail if keys are missing but prevents crash on import)
-  app = initializeApp({ ...config, apiKey: config.apiKey || 'missing-key' });
-}
-
+// Initialize Services
 export const auth = getAuth(app);
-export const db = getFirestore(app, config.firestoreDatabaseId === '(default)' ? undefined : config.firestoreDatabaseId);
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId); /* CRITICAL: The app will break without this line */
 export const googleProvider = new GoogleAuthProvider();
+
+// Connection Test (CRITICAL for debugging deployment/provisioning issues)
+async function testConnection() {
+  try {
+    // Only perform the test once
+    await getDocFromServer(doc(db, '_internal_', 'connection_test'));
+    console.log("Firestore connection verified.");
+  } catch (error: any) {
+    console.warn("Firestore connectivity warning:", error.message);
+    if (error.message.includes('unavailable') || error.message.includes('offline')) {
+      console.error("Please verify that your Firestore database is provisioned and accessible.");
+    }
+  }
+}
+
+// Initial connection test
+if (typeof window !== 'undefined') {
+  testConnection();
+}
 
 export const signIn = async () => {
   try {
@@ -60,12 +53,7 @@ export const signIn = async () => {
     return result;
   } catch (error: any) {
     console.error("Authentication Error:", error.code, error.message);
-
-    if (error.code === 'auth/api-key-not-valid') {
-      alert("Invalid Firebase API Key. Please verify your environment variables in your hosting dashboard.");
-    } else {
-      alert(`Entry denied: ${error.message}`);
-    }
+    alert(`Authentication failure: ${error.message}`);
     throw error;
   }
 };
@@ -127,4 +115,4 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   throw new Error(JSON.stringify(errInfo));
 }
 
-export { collection, addDoc, updateDoc, query, orderBy, onSnapshot, serverTimestamp, limit, startAfter, where, getDocs, Timestamp };
+export { collection, addDoc, updateDoc, query, orderBy, onSnapshot, serverTimestamp, limit, startAfter, where, getDocs, Timestamp, doc };

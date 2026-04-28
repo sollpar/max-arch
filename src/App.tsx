@@ -104,7 +104,7 @@ export default function App() {
         <motion.div
           animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-[8px] font-mono uppercase tracking-[0.4em]"
+          className="text-[10px] font-mono uppercase tracking-[0.4em]"
         >
           Initializing
         </motion.div>
@@ -115,12 +115,12 @@ export default function App() {
   const filteredAchievements = achievements.filter(a => filter === 'all' || a.type === filter);
 
   return (
-    <div className="min-h-screen max-w-sm mx-auto px-6 py-10 selection:bg-black selection:text-white">
-      <header className="mb-4 flex flex-col gap-3">
+    <div className="min-h-screen max-w-sm mx-auto px-8 py-12 selection:bg-black selection:text-white">
+      <header className="mb-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`w-1.5 h-1.5 rounded-full animate-pulse transition-colors duration-1000 ${getPulseColor()}`} />
-            <h1 className="text-[9px] font-mono font-normal tracking-[0.1em] lowercase opacity-40">
+          <div className="flex items-center gap-2.5">
+            <div className={`w-2 h-2 rounded-full animate-pulse transition-colors duration-1000 ${getPulseColor()}`} />
+            <h1 className="text-[11px] font-mono font-normal tracking-[0.1em] lowercase opacity-40">
               max / archive
             </h1>
           </div>
@@ -130,28 +130,28 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <p className="text-[8px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[220px] font-light">
+        <div className="flex flex-col gap-3">
+          <p className="text-[10px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[240px] font-light">
             a record of units committed to the timeline.
           </p>
           
-          <div className="flex items-center gap-3 pt-1 border-t border-neutral-100">
+          <div className="flex items-center gap-4 pt-1.5 border-t border-neutral-100">
             {user ? (
-              <div className="flex items-center gap-3">
-                <span className="text-[7px] font-mono text-neutral-300 lowercase tracking-widest">
+              <div className="flex items-center gap-4">
+                <span className="text-[8.5px] font-mono text-neutral-300 lowercase tracking-widest">
                   root: {user.email?.split('@')[0]}
                 </span>
                 <button 
                   onClick={logOut}
                   className="text-neutral-300 hover:text-axiom-warning transition-colors"
                 >
-                  <LogOut size={6} strokeWidth={1.5} />
+                  <LogOut size={10} strokeWidth={1.5} />
                 </button>
               </div>
             ) : (
               <button 
                 onClick={signIn}
-                className="text-[7px] font-mono text-neutral-300 hover:text-black transition-all"
+                className="text-[8.5px] font-mono text-neutral-300 hover:text-black transition-all"
               >
                 authorize / entry
               </button>
@@ -161,12 +161,12 @@ export default function App() {
           <DashboardStats achievements={achievements} />
         </div>
 
-        <div className="flex gap-4 pt-1 border-b border-neutral-50/50 pb-1.5">
+        <div className="flex gap-5 pt-1.5 border-b border-neutral-50/50 pb-2">
           {(['all', 'work', 'growth', 'personal', 'other'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setFilter(t)}
-              className={`text-[6px] font-mono lowercase tracking-tighter transition-all ${
+              className={`text-[7.5px] font-mono lowercase tracking-tighter transition-all ${
                 filter === t ? 'text-black font-semibold' : 'text-neutral-300 hover:text-neutral-500'
               }`}
             >
@@ -176,22 +176,22 @@ export default function App() {
         </div>
       </header>
 
-      <main className="space-y-2">
+      <main className="space-y-4">
         {user && user.email === 'maximion96@gmail.com' && (
           <CreateEntry userId={user.uid} />
         )}
 
         {loading ? (
-          <div className="py-10 text-neutral-200 font-mono tracking-[0.3em] text-[7px] lowercase">
+          <div className="py-12 text-neutral-200 font-mono tracking-[0.3em] text-[8.5px] lowercase">
             syncing...
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <AchievementList achievements={filteredAchievements} />
             {hasMore && filter === 'all' && (
               <button 
                 onClick={loadMore}
-                className="w-full py-4 text-[7px] font-mono text-neutral-300 hover:text-black lowercase tracking-[0.2em] transition-colors border-t border-neutral-50/50 border-dashed"
+                className="w-full py-6 text-[8.5px] font-mono text-neutral-300 hover:text-black lowercase tracking-[0.2em] transition-colors border-t border-neutral-50/50 border-dashed"
               >
                 [load archive]
               </button>
@@ -200,7 +200,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mt-16 pb-8 text-[6px] font-mono text-neutral-200 lowercase tracking-widest">
+      <footer className="mt-20 pb-10 text-[7.5px] font-mono text-neutral-200 lowercase tracking-widest">
         &copy; {new Date().getFullYear()} max
       </footer>
     </div>

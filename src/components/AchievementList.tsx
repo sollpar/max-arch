@@ -56,8 +56,8 @@ export default function AchievementList({ achievements }: ListProps) {
 
   if (achievements.length === 0) {
     return (
-      <div className="py-20 text-center" id="empty-state">
-        <p className="text-neutral-200 font-mono lowercase tracking-[0.2em] text-[8px]">awaiting record</p>
+      <div className="py-24 text-center" id="empty-state">
+        <p className="text-neutral-200 font-mono lowercase tracking-[0.2em] text-[10px]">awaiting record</p>
       </div>
     );
   }
@@ -81,7 +81,7 @@ export default function AchievementList({ achievements }: ListProps) {
   };
 
   return (
-    <div className="space-y-8" id="achievement-timeline">
+    <div className="space-y-10" id="achievement-timeline">
       <AnimatePresence mode="popLayout">
         {Object.entries(grouped).map(([date, items], groupIndex) => (
           <motion.div 
@@ -91,14 +91,14 @@ export default function AchievementList({ achievements }: ListProps) {
             transition={{ delay: groupIndex * 0.1 }}
             className="group/day"
           >
-            <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 py-1 mb-2 border-b border-neutral-100 flex items-baseline justify-between px-0.5">
-              <h2 className="text-[9px] font-mono lowercase tracking-[0.1em] text-black font-semibold">
+            <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 py-1.5 mb-3 border-b border-neutral-100 flex items-baseline justify-between px-0.5">
+              <h2 className="text-[11px] font-mono lowercase tracking-[0.1em] text-black font-semibold">
                 {format(new Date(date), 'MMM dd, yyyy')}
               </h2>
-              <span className="text-[5px] font-mono text-neutral-200 uppercase tracking-[0.3em] font-normal">{items.length} units</span>
+              <span className="text-[7.5px] font-mono text-neutral-200 uppercase tracking-[0.3em] font-normal">{items.length} units</span>
             </div>
             
-            <div className="space-y-1">
+            <div className="space-y-2">
               {items.map((item, i) => (
                 <motion.div
                   key={item.id}
@@ -106,22 +106,22 @@ export default function AchievementList({ achievements }: ListProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: (groupIndex * 0.05) + (i * 0.02) }}
-                  className="group flex items-start gap-4 px-0.5"
+                  className="group flex items-start gap-5 px-0.5"
                 >
-                  <div className="flex items-center gap-1.5 w-8 shrink-0 py-1 opacity-40 group-hover:opacity-100 transition-opacity">
-                    <div className="w-[1px] h-3 bg-black" />
-                    <span className="text-[6.5px] font-mono text-black font-medium tracking-tighter">
+                  <div className="flex items-center gap-2 w-10 shrink-0 py-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                    <div className="w-[1px] h-3.5 bg-black" />
+                    <span className="text-[8px] font-mono text-black font-medium tracking-tighter">
                       {item.timestamp ? format(item.timestamp.toDate(), 'HH:mm') : '--:--'}
                     </span>
                   </div>
                   
-                  <div className="flex-1 flex items-start justify-between gap-3 py-0.5 min-h-[1.5rem]">
+                  <div className="flex-1 flex items-start justify-between gap-4 py-0.5 min-h-[1.75rem]">
                     {editingId === item.id ? (
-                      <form onSubmit={handleUpdate} className="flex-1 flex flex-col gap-2">
+                      <form onSubmit={handleUpdate} className="flex-1 flex flex-col gap-3">
                         <textarea
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
-                          className="w-full text-[9px] font-sans font-medium leading-tight tracking-tight text-black bg-neutral-50/50 p-2 border-l border-black focus:ring-0 resize-none min-h-[3rem]"
+                          className="w-full text-[11px] font-sans font-medium leading-tight tracking-tight text-black bg-neutral-50/50 p-2 border-l-2 border-black focus:ring-0 resize-none min-h-[3.5rem]"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) handleUpdate(e);
@@ -129,49 +129,49 @@ export default function AchievementList({ achievements }: ListProps) {
                           }}
                         />
                         <div className="flex items-center justify-between">
-                          <div className="flex gap-1.5">
+                          <div className="flex gap-2">
                             {(['work', 'growth', 'personal', 'other'] as const).map(t => (
                               <button
                                 key={t}
                                 type="button"
                                 onClick={() => setEditType(t)}
-                                className={`text-[5px] font-mono lowercase tracking-widest px-1.5 py-0.5 border ${editType === t ? 'bg-black text-white border-black' : 'text-neutral-300 border-neutral-100 hover:border-neutral-200'}`}
+                                className={`text-[7.5px] font-mono lowercase tracking-widest px-2 py-0.5 border ${editType === t ? 'bg-black text-white border-black' : 'text-neutral-300 border-neutral-100 hover:border-neutral-200'}`}
                               >
                                 {t}
                               </button>
                             ))}
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-3">
                             <button 
                               type="submit"
                               disabled={isUpdating}
                               className={`text-black transition-colors ${isUpdating ? 'opacity-20' : 'hover:text-black'}`}
                             >
-                              <Check size={9} strokeWidth={2.5} />
+                              <Check size={12} strokeWidth={2.5} />
                             </button>
                             <button 
                               type="button"
                               onClick={() => setEditingId(null)}
                               className="text-neutral-300 hover:text-black transition-colors"
                             >
-                              <X size={9} strokeWidth={2.5} />
+                              <X size={12} strokeWidth={2.5} />
                             </button>
                           </div>
                         </div>
                       </form>
                     ) : confirmDelete === item.id ? (
-                      <div className="flex items-center gap-3">
-                        <span className="text-[7px] font-mono text-axiom-warning lowercase italic shrink-0 tracking-tighter">confirm_deletion?</span>
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-4">
+                        <span className="text-[8.5px] font-mono text-axiom-warning lowercase italic shrink-0 tracking-tighter">confirm_deletion?</span>
+                        <div className="flex items-center gap-3">
                           <button 
                             onClick={() => item.id && handleDelete(item.id)}
-                            className="text-[7px] font-mono text-axiom-warning hover:bg-axiom-warning hover:text-white px-1 transition-colors lowercase border border-axiom-warning/10"
+                            className="text-[8.5px] font-mono text-axiom-warning hover:bg-axiom-warning hover:text-white px-1.5 transition-colors lowercase border border-axiom-warning/10"
                           >
                             yes
                           </button>
                           <button 
                             onClick={() => setConfirmDelete(null)}
-                            className="text-[7px] font-mono text-neutral-400 hover:text-black px-1 transition-colors lowercase border border-neutral-100"
+                            className="text-[8.5px] font-mono text-neutral-400 hover:text-black px-1.5 transition-colors lowercase border border-neutral-100"
                           >
                             no
                           </button>
@@ -179,30 +179,30 @@ export default function AchievementList({ achievements }: ListProps) {
                       </div>
                     ) : (
                       <>
-                        <div className="flex-1 flex items-baseline gap-2 max-w-[280px]">
-                          <p className="text-[9px] font-sans font-medium leading-tight tracking-tight text-black">
+                        <div className="flex-1 flex items-baseline gap-2.5 max-w-[280px]">
+                          <p className="text-[11px] font-sans font-medium leading-tight tracking-tight text-black">
                             {item.text}
                           </p>
-                          <span className={`text-[5px] font-mono lowercase tracking-[0.1em] opacity-30 group-hover:opacity-100 transition-opacity font-bold shrink-0 ${getTypeColor(item.type)}`}>
+                          <span className={`text-[7.5px] font-mono lowercase tracking-[0.1em] opacity-30 group-hover:opacity-100 transition-opacity font-bold shrink-0 ${getTypeColor(item.type)}`}>
                             {item.type}
                           </span>
                         </div>
                         
                         {isOwner && (
-                          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-0.5">
+                          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-1">
                             <button 
                               onClick={() => startEdit(item)}
                               className="text-neutral-200 hover:text-black transition-all cursor-pointer p-0.5"
                               title="edit"
                             >
-                              <Edit3 size={7} strokeWidth={1} />
+                              <Edit3 size={10} strokeWidth={1} />
                             </button>
                             <button 
                               onClick={() => setConfirmDelete(item.id || null)}
                               className="text-neutral-200 hover:text-black transition-all cursor-pointer p-0.5"
                               title="delete"
                             >
-                              <X size={7} strokeWidth={1} />
+                              <X size={10} strokeWidth={1} />
                             </button>
                           </div>
                         )}

@@ -9,14 +9,22 @@ interface AxiomFirebaseConfig extends FirebaseOptions {
 }
 
 // 1. Initial configuration from Vite environment variables (Netlify/Production)
+// Defensive cleanup for common copy-paste errors like trailing commas or extra quotes
+const sanitizeVar = (val: any) => {
+  if (typeof val !== 'string') return val;
+  return val.trim()
+    .replace(/,$/, '') // Remove trailing comma
+    .replace(/^["']|["']$/g, ''); // Remove surrounding quotes
+};
+
 const config: AxiomFirebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)'
+  apiKey: sanitizeVar(import.meta.env.VITE_FIREBASE_API_KEY),
+  authDomain: sanitizeVar(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
+  projectId: sanitizeVar(import.meta.env.VITE_FIREBASE_PROJECT_ID),
+  storageBucket: sanitizeVar(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
+  messagingSenderId: sanitizeVar(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+  appId: sanitizeVar(import.meta.env.VITE_FIREBASE_APP_ID),
+  firestoreDatabaseId: sanitizeVar(import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID) || '(default)'
 };
 
 // 2. Resolve final config with defensive checks
@@ -57,6 +65,13 @@ if (import.meta.env.PROD) {
   console.info("Target Environment:", window.location.hostname);
   if (!isEnvValid) {
     console.error("CRITICAL: Firebase API Key is missing or invalid in production.");
+  } else {
+    // Helpful log for debugging characters/length without exposing the full key
+    console.info("Config Check:", {
+      keyLength: config.apiKey?.length,
+      domain: config.authDomain,
+      projectId: config.projectId
+    });
   }
 }
 
@@ -69,15 +84,16 @@ export const signIn = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     return result;
   } catch (error: any) {
-    console.error("Auth Fail:", {
+    console.error("Auth Fail Details:", {
       code: error.code,
       message: error.message,
+      keyLength: config.apiKey?.length,
       keyPrefix: config.apiKey ? config.apiKey.substring(0, 4) : 'none',
       domain: config.authDomain
     });
 
     if (error.code === 'auth/api-key-not-valid') {
-      alert("Invalid Firebase API Key. Please verify your Netlify environment variables and trigger a new 'Deploy' with 'Clear cache'.");
+      alert("Invalid Firebase API Key. Please verify your Netlify environment variables (check for trailing COMMAS or QUOTES) and trigger a new 'Deploy' with 'Clear cache'.");
     } else {
       alert(`Entry denied: ${error.message}`);
     }

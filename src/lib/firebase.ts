@@ -24,12 +24,14 @@ const resolveConfig = async (): Promise<AxiomFirebaseConfig> => {
   const envKey = firebaseConfig.apiKey;
   
   // A valid key should exist and not be a placeholder string like "undefined" or the variable name itself
+  // Note: On Netlify, these MUST start with VITE_ to be exposed to the client
   const isEnvValid = !!envKey && 
                     envKey !== 'undefined' && 
                     envKey !== '' && 
-                    !envKey.includes('VITE_');
+                    !envKey.startsWith('VITE_');
 
   if (isEnvValid) {
+    console.info("Firebase: Using valid environment variable config");
     return firebaseConfig;
   }
 
@@ -39,27 +41,29 @@ const resolveConfig = async (): Promise<AxiomFirebaseConfig> => {
       // @ts-ignore - Local dev only file
       const local = await import('../../firebase-applet-config.json');
       if (local && local.default) {
-        console.info("Firebase: Using local fallback configuration");
+        console.info("Firebase: Using local fallback configuration (AI Studio Dev Mode)");
         return {
           ...local.default,
           firestoreDatabaseId: local.default.firestoreDatabaseId || '(default)'
         };
       }
     } catch (e) {
-      // Silent catch - expected in production
+      // No local config
     }
   }
 
   return firebaseConfig;
 };
 
-// Modern Vite/ESM support for top-level await
+// Initialize app with resolved config
 const finalConfig = await resolveConfig();
 
 // Error logging for misconfigured environments
-if (!finalConfig.apiKey || finalConfig.apiKey === 'undefined' || finalConfig.apiKey.includes('VITE_')) {
-  console.error("CRITICAL: Firebase API Key is missing or invalid. Deployment will fail.");
-  console.info("Target Domain:", window.location.hostname);
+if (!finalConfig.apiKey || finalConfig.apiKey === 'undefined' || finalConfig.apiKey.startsWith('VITE_')) {
+  console.error("CRITICAL: Firebase API Key is missing or invalid. Check your Netlify dashboard.", {
+    hostname: window.location.hostname,
+    keyPrefix: finalConfig.apiKey ? finalConfig.apiKey.substring(0, 4) : 'none'
+  });
 }
 
 const app = initializeApp(finalConfig);
@@ -73,15 +77,22 @@ export const signIn = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     return result;
   } catch (error: any) {
+    const maskedKey = finalConfig.apiKey ? `***${finalConfig.apiKey.slice(-5)}` : 'missing';
     console.error("Authentication Error Details:", {
       code: error.code,
       message: error.message,
       config: {
-        apiKey: firebaseConfig.apiKey ? 'present' : 'missing',
-        authDomain: firebaseConfig.authDomain
+        apiKey: maskedKey,
+        authDomain: finalConfig.authDomain
       }
     });
-    alert(`Entry denied: ${error.message}. Ensure your domain is authorized in Firebase Console.`);
+
+    let alertMsg = `Entry denied: ${error.message}`;
+    if (error.code === 'auth/api-key-not-valid') {
+      alertMsg = "The Firebase API Key is invalid. If you just added it to Netlify, you MUST trigger a new 'Deploy' for the changes to take effect.";
+    }
+    
+    alert(alertMsg);
     throw error;
   }
 };

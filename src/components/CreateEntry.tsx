@@ -83,7 +83,14 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
                   key={t}
                   type="button"
                   onClick={() => setType(t)}
-                  className={`text-[10px] font-mono lowercase tracking-[0.2em] transition-all hover:text-black ${type === t ? 'text-black font-bold' : 'text-neutral-300'}`}
+                  className={`text-[10px] font-mono lowercase tracking-[0.2em] transition-all ${
+                    type === t 
+                      ? t === 'work' ? 'text-cat-work font-bold' 
+                        : t === 'growth' ? 'text-cat-growth font-bold'
+                        : t === 'personal' ? 'text-cat-personal font-bold'
+                        : 'text-neutral-600 font-bold'
+                      : 'text-neutral-300 hover:text-neutral-500'
+                  }`}
                 >
                   #{t}
                 </button>

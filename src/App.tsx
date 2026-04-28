@@ -115,8 +115,8 @@ export default function App() {
   const filteredAchievements = achievements.filter(a => filter === 'all' || a.type === filter);
 
   return (
-    <div className="min-h-screen max-w-[420px] mx-auto px-10 py-16 selection:bg-black selection:text-white">
-      <header className="mb-6 flex flex-col gap-4">
+    <div className="min-h-screen max-w-[460px] mx-auto px-10 py-10 selection:bg-black selection:text-white">
+      <header className="mb-2 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className={`w-2 h-2 rounded-full animate-pulse transition-colors duration-1000 ${getPulseColor()}`} />
@@ -130,12 +130,12 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2.5">
-          <p className="text-[11px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[280px] font-light">
+        <div className="flex flex-col gap-1">
+          <p className="text-[10.5px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[320px] font-light">
             a record of units committed to the timeline.
           </p>
           
-          <div className="flex items-center gap-4 pt-2 border-t border-neutral-100 mt-2">
+          <div className="flex items-center gap-4 pt-1 border-t border-neutral-100 mt-0.5">
             {user ? (
               <div className="flex items-center gap-4">
                 <span className="text-[9.5px] font-mono text-neutral-300 lowercase tracking-widest">
@@ -158,17 +158,17 @@ export default function App() {
             )}
           </div>
           
-          <div className="-mt-1">
+          <div className="-mt-1.5">
             <DashboardStats achievements={achievements} />
           </div>
         </div>
 
-        <div className="flex gap-5 pt-2 border-b border-neutral-100 pb-2">
+        <div className="flex gap-4 pt-0.5 border-b border-neutral-100 pb-1">
           {(['all', 'work', 'growth', 'personal', 'other'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setFilter(t)}
-              className={`text-[9px] font-mono lowercase tracking-tighter transition-all ${
+              className={`text-[9.5px] font-mono lowercase tracking-tighter transition-all ${
                 filter === t ? 'text-black font-semibold' : 'text-neutral-300 hover:text-neutral-500'
               }`}
             >
@@ -178,22 +178,22 @@ export default function App() {
         </div>
       </header>
 
-      <main className="space-y-6">
+      <main className="space-y-2">
         {user && user.email === 'maximion96@gmail.com' && (
           <CreateEntry userId={user.uid} />
         )}
 
         {loading ? (
-          <div className="py-16 text-neutral-200 font-mono tracking-[0.3em] text-[10px] lowercase">
+          <div className="py-12 text-neutral-200 font-mono tracking-[0.3em] text-[10px] lowercase">
             syncing...
           </div>
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-4">
             <AchievementList achievements={filteredAchievements} />
             {hasMore && filter === 'all' && (
               <button 
                 onClick={loadMore}
-                className="w-full py-8 text-[10px] font-mono text-neutral-300 hover:text-black lowercase tracking-[0.2em] transition-colors border-t border-neutral-100 border-dashed"
+                className="w-full py-4 text-[10px] font-mono text-neutral-300 hover:text-black lowercase tracking-[0.2em] transition-colors border-t border-neutral-100 border-dashed"
               >
                 [load archive]
               </button>
@@ -202,7 +202,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mt-28 pb-12 text-[9px] font-mono text-neutral-200 lowercase tracking-widest">
+      <footer className="mt-12 pb-8 text-[9px] font-mono text-neutral-200 lowercase tracking-widest">
         &copy; {new Date().getFullYear()} max
       </footer>
     </div>

@@ -12,10 +12,22 @@ interface AxiomFirebaseConfig extends FirebaseOptions {
 // Defensive cleanup for common copy-paste errors like trailing commas or extra quotes
 const sanitizeVar = (val: any) => {
   if (typeof val !== 'string') return val;
-  return val.trim()
+  let cleaned = val.trim();
+  // Handle case where user might have pasted "KEY=VALUE"
+  if (cleaned.includes('=') && (cleaned.startsWith('VITE_') || cleaned.startsWith('FIREBASE_'))) {
+    cleaned = cleaned.split('=')[1];
+  }
+  return cleaned
     .replace(/,$/, '') // Remove trailing comma
-    .replace(/^["']|["']$/g, ''); // Remove surrounding quotes
+    .replace(/^["']|["']$/g, '') // Remove surrounding quotes
+    .replace(/[\n\r]/g, ''); // Remove newlines
 };
+
+// Log available VITE_ keys in production (names only, for debugging build env)
+if (import.meta.env.PROD) {
+  const keys = Object.keys(import.meta.env).filter(k => k.startsWith('VITE_'));
+  console.info("Build Environment Keys:", keys);
+}
 
 const config: AxiomFirebaseConfig = {
   apiKey: sanitizeVar(import.meta.env.VITE_FIREBASE_API_KEY),
@@ -29,10 +41,15 @@ const config: AxiomFirebaseConfig = {
 
 // 2. Resolve final config with defensive checks
 const k = config.apiKey;
-const isEnvValid = !!k && k !== 'undefined' && k !== '' && !k.startsWith('VITE_');
+const isEnvValid = !!k && 
+                  k !== 'undefined' && 
+                  k !== '' && 
+                  !k.startsWith('VITE_') && 
+                  k.length > 20; // Most FB keys are > 30 chars
 
 let app;
 if (isEnvValid) {
+  console.info("Firebase: Initializing with environment variables.");
   app = initializeApp(config);
 } else {
   // Fallback for AI Studio Dev Mode
@@ -42,6 +59,7 @@ if (isEnvValid) {
       // @ts-ignore - Local dev only file
       const local = await import('../../firebase-applet-config.json');
       if (local && local.default) {
+        console.info("Firebase: Using local fallback configuration (AI Studio Dev Mode)");
         Object.assign(config, {
           ...local.default,
           firestoreDatabaseId: local.default.firestoreDatabaseId || '(default)'
@@ -55,8 +73,12 @@ if (isEnvValid) {
   }
   
   if (!foundLocal) {
-    // Last resort dummy config to prevent crash
-    app = initializeApp({ ...config, apiKey: config.apiKey || 'missing' });
+    if (import.meta.env.PROD) {
+      console.error("CRITICAL: No valid Firebase API key found in environment variables.");
+    }
+    // Last resort dummy config to prevent crash during initialization
+    // but this will fail during auth/firestore operations
+    app = initializeApp({ ...config, apiKey: config.apiKey || 'missing-key' });
   }
 }
 

@@ -34,15 +34,15 @@ export default function DashboardStats({ achievements }: StatsProps) {
   const velocity = (last7DaysCount / 7).toFixed(1);
 
   return (
-    <div className="pt-4 border-t-2 border-neutral-100 mt-8" id="dashboard-stats">
-      <div className="flex items-center justify-between mb-4 px-0.5">
-        <span className="text-[7.5px] font-mono text-neutral-300 uppercase tracking-[0.2em] font-medium">momentum_matrix</span>
+    <div className="pt-2 border-t border-neutral-100 mt-4" id="dashboard-stats">
+      <div className="flex items-center justify-between mb-3 px-0.5">
+        <span className="text-[6.5px] font-mono text-neutral-300 uppercase tracking-[0.2em] font-medium">momentum_matrix</span>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 px-0.5">
+      <div className="grid grid-cols-4 gap-3 px-0.5">
         {distribution.map(d => (
-          <div key={d.type} className="flex flex-col gap-2">
-            <div className="h-[2px] bg-neutral-50 overflow-hidden">
+          <div key={d.type} className="flex flex-col gap-1.5">
+            <div className="h-[1px] bg-neutral-50 overflow-hidden">
               <div 
                 className={`h-full transition-all duration-1000 ease-out ${
                   d.type === 'work' ? 'bg-black' : 
@@ -53,8 +53,8 @@ export default function DashboardStats({ achievements }: StatsProps) {
               />
             </div>
             <div className="flex justify-between items-baseline">
-              <span className="text-[7.5px] font-mono text-neutral-400 lowercase tracking-tighter leading-none">{d.type}</span>
-              <span className="text-[9.5px] font-mono text-black font-semibold leading-none">{d.count}</span>
+              <span className="text-[6.5px] font-mono text-neutral-400 lowercase tracking-tighter leading-none">{d.type}</span>
+              <span className="text-[8px] font-mono text-black font-semibold leading-none">{d.count}</span>
             </div>
           </div>
         ))}

@@ -116,11 +116,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen max-w-sm mx-auto px-8 py-12 selection:bg-black selection:text-white">
-      <header className="mb-6 flex flex-col gap-4">
+      <header className="mb-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full animate-pulse transition-colors duration-1000 ${getPulseColor()}`} />
-            <h1 className="text-[11px] font-mono font-normal tracking-[0.1em] lowercase opacity-40">
+            <h1 className="text-[10px] font-mono font-normal tracking-[0.1em] lowercase opacity-40">
               max / archive
             </h1>
           </div>
@@ -130,43 +130,45 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <p className="text-[10px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[240px] font-light">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-[9.5px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[240px] font-light">
             a record of units committed to the timeline.
           </p>
           
-          <div className="flex items-center gap-4 pt-1.5 border-t border-neutral-100">
+          <div className="flex items-center gap-4 pt-1 border-t border-neutral-100 mt-1">
             {user ? (
               <div className="flex items-center gap-4">
-                <span className="text-[8.5px] font-mono text-neutral-300 lowercase tracking-widest">
+                <span className="text-[8px] font-mono text-neutral-300 lowercase tracking-widest">
                   root: {user.email?.split('@')[0]}
                 </span>
                 <button 
                   onClick={logOut}
                   className="text-neutral-300 hover:text-axiom-warning transition-colors"
                 >
-                  <LogOut size={10} strokeWidth={1.5} />
+                  <LogOut size={9} strokeWidth={1.5} />
                 </button>
               </div>
             ) : (
               <button 
                 onClick={signIn}
-                className="text-[8.5px] font-mono text-neutral-300 hover:text-black transition-all"
+                className="text-[8px] font-mono text-neutral-300 hover:text-black transition-all"
               >
                 authorize / entry
               </button>
             )}
           </div>
           
-          <DashboardStats achievements={achievements} />
+          <div className="-mt-1">
+            <DashboardStats achievements={achievements} />
+          </div>
         </div>
 
-        <div className="flex gap-5 pt-1.5 border-b border-neutral-50/50 pb-2">
+        <div className="flex gap-4 pt-1 border-b border-neutral-100 pb-1.5">
           {(['all', 'work', 'growth', 'personal', 'other'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setFilter(t)}
-              className={`text-[7.5px] font-mono lowercase tracking-tighter transition-all ${
+              className={`text-[7px] font-mono lowercase tracking-tighter transition-all ${
                 filter === t ? 'text-black font-semibold' : 'text-neutral-300 hover:text-neutral-500'
               }`}
             >

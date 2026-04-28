@@ -45,29 +45,29 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
   };
 
   return (
-    <div className="mb-6" id="create-entry-container">
+    <div className="mb-4" id="create-entry-container">
       {!isExpanded ? (
         <button
           onClick={() => setIsExpanded(true)}
-          className="group flex items-center gap-3 text-neutral-300 hover:text-black transition-colors duration-500"
+          className="group flex items-center gap-2 text-neutral-300 hover:text-black transition-colors duration-500"
           id="expand-btn"
         >
-          <Plus size={10} strokeWidth={1} />
-          <span className="text-[9.5px] font-mono tracking-tight lowercase font-light italic opacity-60 group-hover:opacity-100">add increment</span>
+          <Plus size={8} strokeWidth={1} />
+          <span className="text-[8.5px] font-mono tracking-tight lowercase font-light italic opacity-60 group-hover:opacity-100">add increment</span>
         </button>
       ) : (
         <motion.form
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           onSubmit={handleSubmit}
-          className="space-y-3 border-l-2 border-neutral-100 pl-5 py-1.5"
+          className="space-y-2 border-l border-neutral-100 pl-4 py-1"
         >
           <textarea
             autoFocus
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="commit unit..."
-            className="w-full bg-transparent border-none outline-none py-0.5 text-[11px] font-sans font-medium leading-tight tracking-tight transition-colors placeholder:text-neutral-100 resize-none text-black focus:text-black"
+            className="w-full bg-transparent border-none outline-none py-0.5 text-[10px] font-sans font-medium leading-tight tracking-tight transition-colors placeholder:text-neutral-100 resize-none text-black focus:text-black"
             rows={1}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -76,32 +76,33 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
               }
             }}
           />
-          <div className="flex flex-col gap-4 pt-3 border-t border-neutral-100">
-            <div className="flex gap-5">
+          <div className="flex flex-col gap-3 pt-2 border-t border-neutral-100">
+            <div className="flex gap-4">
               {(['work', 'personal', 'growth', 'other'] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setType(t)}
-                  className={`text-[7.5px] font-mono lowercase tracking-[0.2em] transition-all hover:text-black ${type === t ? 'text-black font-bold' : 'text-neutral-200'}`}
+                  className={`text-[6.5px] font-mono lowercase tracking-[0.2em] transition-all hover:text-black ${type === t ? 'text-black font-bold' : 'text-neutral-200'}`}
                 >
                   {t}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-6">
               <button
                 type="submit"
                 disabled={!text.trim() || isSubmitting}
-                className="text-[8.5px] font-mono lowercase tracking-[0.3em] text-neutral-400 hover:text-black disabled:opacity-10 transition-colors flex items-center gap-1.5"
+                className="text-[7.5px] font-mono lowercase tracking-[0.3em] text-neutral-400 hover:text-black disabled:opacity-10 transition-colors flex items-center gap-1"
               >
-                <div className="w-1.5 h-3 bg-neutral-100 group-hover:bg-black transition-colors" />
+                <div className="w-1 h-2.5 bg-neutral-100 group-hover:bg-black transition-colors" />
                 {isSubmitting ? 'syncing_data' : 'commit_unit'}
               </button>
               <button
                 type="button"
                 onClick={() => setIsExpanded(false)}
-                className="text-[8.5px] font-mono lowercase tracking-[0.3em] text-neutral-200 hover:text-black transition-colors"
+                className="text-[7.5px] font-mono lowercase tracking-[0.3em] text-neutral-200 hover:text-black transition-colors"
+                id="abort-btn"
               >
                 abort_sequence
               </button>

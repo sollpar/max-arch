@@ -115,50 +115,50 @@ export default function App() {
   const filteredAchievements = achievements.filter(a => filter === 'all' || a.type === filter);
 
   return (
-    <div className="min-h-screen max-w-[460px] mx-auto px-10 py-10 selection:bg-black selection:text-white">
-      <header className="mb-2 flex flex-col gap-3">
+    <div className="min-h-screen max-w-[460px] mx-auto px-10 py-8 selection:bg-black selection:text-white">
+      <header className="mb-1 flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className={`w-2 h-2 rounded-full animate-pulse transition-colors duration-1000 ${getPulseColor()}`} />
-            <h1 className="text-[12px] font-mono font-medium tracking-[0.05em] lowercase opacity-40">
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full animate-pulse transition-colors duration-1000 ${getPulseColor()}`} />
+            <h1 className="text-[11px] font-mono font-medium tracking-[0.05em] lowercase opacity-40">
               max / archive
             </h1>
           </div>
           
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <AchievementPulse achievements={achievements} />
           </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <p className="text-[10.5px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[320px] font-light">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-[10px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[320px] font-light">
             a record of units committed to the timeline.
           </p>
           
           <div className="flex items-center gap-4 pt-1 border-t border-neutral-100 mt-0.5">
             {user ? (
               <div className="flex items-center gap-4">
-                <span className="text-[9.5px] font-mono text-neutral-300 lowercase tracking-widest">
+                <span className="text-[9px] font-mono text-neutral-300 lowercase tracking-widest">
                   root: {user.email?.split('@')[0]}
                 </span>
                 <button 
                   onClick={logOut}
                   className="text-neutral-300 hover:text-axiom-warning transition-colors"
                 >
-                  <LogOut size={11} strokeWidth={1.5} />
+                  <LogOut size={10} strokeWidth={1.5} />
                 </button>
               </div>
             ) : (
               <button 
                 onClick={signIn}
-                className="text-[9.5px] font-mono text-neutral-300 hover:text-black transition-all"
+                className="text-[9px] font-mono text-neutral-300 hover:text-black transition-all"
               >
                 authorize / entry
               </button>
             )}
           </div>
           
-          <div className="-mt-1.5">
+          <div className="-mt-2">
             <DashboardStats achievements={achievements} />
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function App() {
             <button
               key={t}
               onClick={() => setFilter(t)}
-              className={`text-[9.5px] font-mono lowercase tracking-tighter transition-all ${
+              className={`text-[9px] font-mono lowercase tracking-tighter transition-all ${
                 filter === t ? 'text-black font-semibold' : 'text-neutral-300 hover:text-neutral-500'
               }`}
             >
@@ -178,22 +178,22 @@ export default function App() {
         </div>
       </header>
 
-      <main className="space-y-2">
+      <main className="space-y-1">
         {user && user.email === 'maximion96@gmail.com' && (
           <CreateEntry userId={user.uid} />
         )}
 
         {loading ? (
-          <div className="py-12 text-neutral-200 font-mono tracking-[0.3em] text-[10px] lowercase">
+          <div className="py-8 text-neutral-200 font-mono tracking-[0.3em] text-[10px] lowercase">
             syncing...
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             <AchievementList achievements={filteredAchievements} />
             {hasMore && filter === 'all' && (
               <button 
                 onClick={loadMore}
-                className="w-full py-4 text-[10px] font-mono text-neutral-300 hover:text-black lowercase tracking-[0.2em] transition-colors border-t border-neutral-100 border-dashed"
+                className="w-full py-2 text-[9px] font-mono text-neutral-300 hover:text-black lowercase tracking-[0.2em] transition-colors border-t border-neutral-100 border-dashed"
               >
                 [load archive]
               </button>
@@ -202,7 +202,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mt-12 pb-8 text-[9px] font-mono text-neutral-200 lowercase tracking-widest">
+      <footer className="mt-8 pb-6 text-[8px] font-mono text-neutral-200 lowercase tracking-widest">
         &copy; {new Date().getFullYear()} max
       </footer>
     </div>

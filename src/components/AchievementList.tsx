@@ -81,7 +81,7 @@ export default function AchievementList({ achievements }: ListProps) {
   };
 
   return (
-    <div className="space-y-4" id="achievement-timeline">
+    <div className="space-y-2" id="achievement-timeline">
       <AnimatePresence mode="popLayout">
         {Object.entries(grouped).map(([date, items], groupIndex) => (
           <motion.div 
@@ -91,8 +91,8 @@ export default function AchievementList({ achievements }: ListProps) {
             transition={{ delay: groupIndex * 0.1 }}
             className="group/day"
           >
-            <div className="sticky top-0 bg-white/90 backdrop-blur-md z-10 py-1 mb-1 border-b border-neutral-100 flex items-baseline justify-between px-0.5">
-              <h2 className="text-[9.5px] font-mono lowercase tracking-[0.02em] text-black font-semibold">
+            <div className="sticky top-0 bg-white/90 backdrop-blur-md z-10 py-1 mb-0.5 border-b border-neutral-100 flex items-baseline justify-between px-0.5">
+              <h2 className="text-[9px] font-mono lowercase tracking-[0.02em] text-black font-semibold">
                 {format(new Date(date), 'MMM dd, yyyy')}
               </h2>
               <span className="text-[7.5px] font-mono text-neutral-300 uppercase tracking-[0.2em] font-normal">{items.length} units</span>
@@ -106,23 +106,23 @@ export default function AchievementList({ achievements }: ListProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: (groupIndex * 0.05) + (i * 0.02) }}
-                  className="group flex flex-col gap-0.5 px-0.5"
+                  className="group flex flex-col px-0.5"
                 >
-                  <div className="flex items-start gap-3 px-0.5">
-                    <div className="flex items-center gap-2 w-14 shrink-0 py-1 opacity-40 group-hover:opacity-100 transition-opacity">
-                      <div className="w-[1.5px] h-3 bg-black" />
-                      <span className="text-[9px] font-mono text-black font-bold tracking-tighter">
+                  <div className="flex items-start gap-4 px-0.5">
+                    <div className="flex items-center gap-2 w-12 shrink-0 py-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                      <div className="w-[1px] h-2.5 bg-black" />
+                      <span className="text-[8.5px] font-mono text-black font-normal tracking-tighter">
                         {item.timestamp ? format(item.timestamp.toDate(), 'HH:mm') : '--:--'}
                       </span>
                     </div>
                   
-                  <div className="flex-1 flex flex-col gap-0.5 min-h-[1rem]">
+                  <div className="flex-1 min-h-[0.75rem]">
                     {editingId === item.id ? (
-                      <form onSubmit={handleUpdate} className="flex-1 flex flex-col gap-1.5 pt-0.5">
+                      <form onSubmit={handleUpdate} className="flex-1 flex flex-col gap-1 pt-0.5">
                         <textarea
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
-                          className="w-full text-[11.5px] font-sans font-medium leading-tight tracking-tight text-black bg-neutral-50/50 p-2 border-l-2 border-black focus:ring-0 resize-none min-h-[2.5rem]"
+                          className="w-full text-[11px] font-sans font-medium leading-tight tracking-tight text-neutral-800 bg-neutral-50/50 p-1.5 border-l border-black focus:ring-0 resize-none min-h-[2.5rem]"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) handleUpdate(e);
@@ -130,32 +130,32 @@ export default function AchievementList({ achievements }: ListProps) {
                           }}
                         />
                         <div className="flex items-center justify-between">
-                          <div className="flex gap-1.5">
+                          <div className="flex gap-1">
                             {(['work', 'growth', 'personal', 'other'] as const).map(t => (
                               <button
                                 key={t}
                                 type="button"
                                 onClick={() => setEditType(t)}
-                                className={`text-[8px] font-mono lowercase tracking-widest px-1.5 py-0.5 border ${editType === t ? 'bg-black text-white border-black' : 'text-neutral-300 border-neutral-100 hover:border-neutral-200'}`}
+                                className={`text-[7.5px] font-mono lowercase tracking-widest px-1.5 py-0.5 border ${editType === t ? 'bg-black text-white border-black' : 'text-neutral-300 border-neutral-100 hover:border-neutral-200'}`}
                               >
                                 {t}
                               </button>
                             ))}
                           </div>
-                          <div className="flex gap-3">
+                          <div className="flex gap-2">
                             <button 
                               type="submit"
                               disabled={isUpdating}
                               className={`text-black transition-colors ${isUpdating ? 'opacity-20' : 'hover:text-black'}`}
                             >
-                              <Check size={12} strokeWidth={2.5} />
+                              <Check size={11} strokeWidth={2} />
                             </button>
                             <button 
                               type="button"
                               onClick={() => setEditingId(null)}
                               className="text-neutral-300 hover:text-black transition-colors"
                             >
-                              <X size={12} strokeWidth={2.5} />
+                              <X size={11} strokeWidth={2} />
                             </button>
                           </div>
                         </div>
@@ -166,44 +166,44 @@ export default function AchievementList({ achievements }: ListProps) {
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => item.id && handleDelete(item.id)}
-                            className="text-[9px] font-mono text-axiom-warning hover:bg-axiom-warning hover:text-white px-1.5 transition-colors border border-axiom-warning/10"
+                            className="text-[8.5px] font-mono text-axiom-warning hover:bg-axiom-warning hover:text-white px-1 transition-colors border border-axiom-warning/10"
                           >
                             y
                           </button>
                           <button 
                             onClick={() => setConfirmDelete(null)}
-                            className="text-[9px] font-mono text-neutral-400 hover:text-black px-1.5 transition-colors border border-neutral-100"
+                            className="text-[8.5px] font-mono text-neutral-400 hover:text-black px-1 transition-colors border border-neutral-100"
                           >
                             n
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 py-1">
-                          <p className="text-[11.5px] font-sans font-medium leading-tight tracking-tight text-black">
+                      <div className="flex flex-col">
+                        <div className="flex items-baseline justify-between gap-4 py-0.5">
+                          <p className="text-[11px] font-sans font-medium leading-tight tracking-tight text-black flex-1">
                             {item.text}
                           </p>
-                          <span className={`text-[9px] font-mono font-normal lowercase tracking-tighter shrink-0 opacity-40 transition-opacity ${getTypeColor(item.type)}`}>
+                          <span className={`text-[8.5px] font-mono font-normal lowercase tracking-tighter shrink-0 opacity-40 transition-opacity group-hover:opacity-100 ${getTypeColor(item.type)}`}>
                             #{item.type}
                           </span>
                         </div>
                         
                         {isOwner && (
-                          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-2 pb-1">
+                          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-2 pb-0.5 -mt-0.5">
                             <button 
                               onClick={() => startEdit(item)}
                               className="text-neutral-300 hover:text-black transition-all cursor-pointer"
                               title="edit"
                             >
-                              <Edit3 size={9} strokeWidth={1} />
+                              <Edit3 size={8} strokeWidth={1} />
                             </button>
                             <button 
                               onClick={() => setConfirmDelete(item.id || null)}
                               className="text-neutral-300 hover:text-axiom-warning transition-all cursor-pointer"
                               title="delete"
                             >
-                              <X size={9} strokeWidth={1} />
+                              <X size={8} strokeWidth={1} />
                             </button>
                           </div>
                         )}

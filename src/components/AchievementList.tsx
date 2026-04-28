@@ -116,100 +116,101 @@ export default function AchievementList({ achievements }: ListProps) {
                       </span>
                     </div>
                   
-                  <div className="flex-1 min-h-[0.75rem]">
-                    {editingId === item.id ? (
-                      <form onSubmit={handleUpdate} className="flex-1 flex flex-col gap-1 pt-0.5">
-                        <textarea
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="w-full text-[11px] font-sans font-medium leading-tight tracking-tight text-neutral-800 bg-neutral-50/50 p-1.5 border-l border-black focus:ring-0 resize-none min-h-[2.5rem]"
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) handleUpdate(e);
-                            if (e.key === 'Escape') setEditingId(null);
-                          }}
-                        />
-                        <div className="flex items-center justify-between">
-                          <div className="flex gap-1">
-                            {(['work', 'growth', 'personal', 'other'] as const).map(t => (
-                              <button
-                                key={t}
-                                type="button"
-                                onClick={() => setEditType(t)}
-                                className={`text-[7.5px] font-mono lowercase tracking-widest px-1.5 py-0.5 border ${editType === t ? 'bg-black text-white border-black' : 'text-neutral-300 border-neutral-100 hover:border-neutral-200'}`}
+                    <div className="flex-1">
+                      {editingId === item.id ? (
+                        <form onSubmit={handleUpdate} className="flex-1 flex flex-col gap-1 pt-0.5">
+                          <textarea
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            className="w-full text-[11px] font-sans font-medium leading-tight tracking-tight text-neutral-800 bg-neutral-50/50 p-1.5 border-l border-black focus:ring-0 resize-none min-h-[2.5rem]"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) handleUpdate(e);
+                              if (e.key === 'Escape') setEditingId(null);
+                            }}
+                          />
+                          <div className="flex items-center justify-between">
+                            <div className="flex gap-1">
+                              {(['work', 'growth', 'personal', 'other'] as const).map(t => (
+                                <button
+                                  key={t}
+                                  type="button"
+                                  onClick={() => setEditType(t)}
+                                  className={`text-[7px] font-mono lowercase tracking-tighter px-1 py-0.5 border ${editType === t ? 'bg-black text-white border-black' : 'text-neutral-300 border-neutral-100 hover:border-neutral-200'}`}
+                                >
+                                  {t}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="flex gap-2">
+                              <button 
+                                type="submit"
+                                disabled={isUpdating}
+                                className={`text-black transition-colors ${isUpdating ? 'opacity-20' : 'hover:text-black'}`}
                               >
-                                {t}
+                                <Check size={11} strokeWidth={2.5} />
                               </button>
-                            ))}
+                              <button 
+                                type="button"
+                                onClick={() => setEditingId(null)}
+                                className="text-neutral-400 hover:text-black transition-colors"
+                              >
+                                <X size={11} strokeWidth={2.5} />
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex gap-2">
+                        </form>
+                      ) : confirmDelete === item.id ? (
+                        <div className="flex items-center justify-end gap-3 py-1">
+                          <span className="text-[8.5px] font-mono text-axiom-warning lowercase italic shrink-0 tracking-tighter">confirm_delete?</span>
+                          <div className="flex items-center gap-1.5">
                             <button 
-                              type="submit"
-                              disabled={isUpdating}
-                              className={`text-black transition-colors ${isUpdating ? 'opacity-20' : 'hover:text-black'}`}
+                              onClick={() => item.id && handleDelete(item.id)}
+                              className="text-[8px] font-mono text-axiom-warning hover:bg-axiom-warning hover:text-white px-2 transition-colors border border-axiom-warning/10"
                             >
-                              <Check size={11} strokeWidth={2} />
+                              yes
                             </button>
                             <button 
-                              type="button"
-                              onClick={() => setEditingId(null)}
-                              className="text-neutral-300 hover:text-black transition-colors"
+                              onClick={() => setConfirmDelete(null)}
+                              className="text-[8px] font-mono text-neutral-400 hover:text-black px-2 transition-colors border border-neutral-100"
                             >
-                              <X size={11} strokeWidth={2} />
+                              no
                             </button>
                           </div>
                         </div>
-                      </form>
-                    ) : confirmDelete === item.id ? (
-                      <div className="flex items-center gap-3 py-1">
-                        <span className="text-[9px] font-mono text-axiom-warning lowercase italic shrink-0 tracking-tighter">confirm_deletion?</span>
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => item.id && handleDelete(item.id)}
-                            className="text-[8.5px] font-mono text-axiom-warning hover:bg-axiom-warning hover:text-white px-1 transition-colors border border-axiom-warning/10"
-                          >
-                            y
-                          </button>
-                          <button 
-                            onClick={() => setConfirmDelete(null)}
-                            className="text-[8.5px] font-mono text-neutral-400 hover:text-black px-1 transition-colors border border-neutral-100"
-                          >
-                            n
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col">
-                        <div className="flex items-baseline justify-between gap-4 py-0.5">
+                      ) : (
+                        <div className="flex items-start justify-between gap-4 py-0.5">
                           <p className="text-[11px] font-sans font-medium leading-tight tracking-tight text-black flex-1">
                             {item.text}
                           </p>
-                          <span className={`text-[8.5px] font-mono font-normal lowercase tracking-tighter shrink-0 opacity-40 transition-opacity group-hover:opacity-100 ${getTypeColor(item.type)}`}>
-                            #{item.type}
-                          </span>
-                        </div>
-                        
-                        {isOwner && (
-                          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-2 pb-0.5 -mt-0.5">
-                            <button 
-                              onClick={() => startEdit(item)}
-                              className="text-neutral-300 hover:text-black transition-all cursor-pointer"
-                              title="edit"
-                            >
-                              <Edit3 size={8} strokeWidth={1} />
-                            </button>
-                            <button 
-                              onClick={() => setConfirmDelete(item.id || null)}
-                              className="text-neutral-300 hover:text-axiom-warning transition-all cursor-pointer"
-                              title="delete"
-                            >
-                              <X size={8} strokeWidth={1} />
-                            </button>
+                          
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className={`text-[8.5px] font-mono font-normal lowercase tracking-tighter opacity-30 transition-opacity group-hover:opacity-100 ${getTypeColor(item.type)}`}>
+                              #{item.type}
+                            </span>
+                            
+                            {isOwner && (
+                              <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-1.5">
+                                <button 
+                                  onClick={() => startEdit(item)}
+                                  className="text-neutral-300 hover:text-black transition-all cursor-pointer"
+                                  title="edit"
+                                >
+                                  <Edit3 size={9} strokeWidth={1} />
+                                </button>
+                                <button 
+                                  onClick={() => setConfirmDelete(item.id || null)}
+                                  className="text-neutral-300 hover:text-axiom-warning transition-all cursor-pointer"
+                                  title="delete"
+                                >
+                                  <X size={9} strokeWidth={1} />
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                        </div>
+                      )}
+                    </div>
                 </div>
               </motion.div>
               ))}

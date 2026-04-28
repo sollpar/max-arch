@@ -1,0 +1,12 @@
+# wrangler.toml
+
+name = "max-arch"
+type = "javascript"
+
+account_id = "YOUR_ACCOUNT_ID"
+workers_dev = true
+compatibility_date = "2026-04-28"
+
+[[build]]
+command = "vite build"
+directory = "dist"

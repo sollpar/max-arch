@@ -9,24 +9,27 @@ interface AxiomFirebaseConfig extends FirebaseOptions {
 }
 
 // 1. Initial configuration from Vite environment variables (Netlify/Production)
-// Defensive cleanup for common copy-paste errors like trailing commas or extra quotes
+// Defensive cleanup for common copy-paste errors
 const sanitizeVar = (val: any) => {
   if (typeof val !== 'string') return val;
   let cleaned = val.trim();
-  // Handle case where user might have pasted "KEY=VALUE"
-  if (cleaned.includes('=') && (cleaned.startsWith('VITE_') || cleaned.startsWith('FIREBASE_'))) {
-    cleaned = cleaned.split('=')[1];
+  
+  // Handle "VITE_VAR=VALUE" or "VAR=VALUE" formats
+  if (cleaned.includes('=') && /^[A-Z0-9_]+=/.test(cleaned)) {
+    const parts = cleaned.split('=');
+    cleaned = parts.slice(1).join('=');
   }
+
   return cleaned
     .replace(/,$/, '') // Remove trailing comma
     .replace(/^["']|["']$/g, '') // Remove surrounding quotes
     .replace(/[\n\r]/g, ''); // Remove newlines
 };
 
-// Log available VITE_ keys in production (names only, for debugging build env)
+// Log build info
 if (import.meta.env.PROD) {
   const keys = Object.keys(import.meta.env).filter(k => k.startsWith('VITE_'));
-  console.info("Build Environment Keys:", keys);
+  console.info("Firebase: Production build logs enabled.", { envKeys: keys });
 }
 
 const config: AxiomFirebaseConfig = {
@@ -45,11 +48,10 @@ const isEnvValid = !!k &&
                   k !== 'undefined' && 
                   k !== '' && 
                   !k.startsWith('VITE_') && 
-                  k.length > 20; // Most FB keys are > 30 chars
+                  k.length > 20;
 
 let app;
 if (isEnvValid) {
-  console.info("Firebase: Initializing with environment variables.");
   app = initializeApp(config);
 } else {
   // Fallback for AI Studio Dev Mode
@@ -59,7 +61,7 @@ if (isEnvValid) {
       // @ts-ignore - Local dev only file
       const local = await import('../../firebase-applet-config.json');
       if (local && local.default) {
-        console.info("Firebase: Using local fallback configuration (AI Studio Dev Mode)");
+        console.info("Firebase: Using local fallback configuration");
         Object.assign(config, {
           ...local.default,
           firestoreDatabaseId: local.default.firestoreDatabaseId || '(default)'
@@ -74,27 +76,22 @@ if (isEnvValid) {
   
   if (!foundLocal) {
     if (import.meta.env.PROD) {
-      console.error("CRITICAL: No valid Firebase API key found in environment variables.");
+      console.error("CRITICAL: No valid Firebase API key found in Netlify environment variables.");
     }
-    // Last resort dummy config to prevent crash during initialization
-    // but this will fail during auth/firestore operations
     app = initializeApp({ ...config, apiKey: config.apiKey || 'missing-key' });
   }
 }
 
-// Error logging for production
+// Security-safe debug log for production
 if (import.meta.env.PROD) {
-  console.info("Target Environment:", window.location.hostname);
-  if (!isEnvValid) {
-    console.error("CRITICAL: Firebase API Key is missing or invalid in production.");
-  } else {
-    // Helpful log for debugging characters/length without exposing the full key
-    console.info("Config Check:", {
-      keyLength: config.apiKey?.length,
-      domain: config.authDomain,
-      projectId: config.projectId
-    });
-  }
+  console.info("Firebase Configuration State:", {
+    hostname: window.location.hostname,
+    hasValidKey: isEnvValid,
+    keyLength: config.apiKey?.length,
+    keyStart: config.apiKey ? config.apiKey.substring(0, 4) : 'none',
+    keyEnd: config.apiKey ? config.apiKey.slice(-2) : 'none', // Show last 2 chars to check for truncation
+    projectId: config.projectId
+  });
 }
 
 export const auth = getAuth(app);
@@ -106,16 +103,15 @@ export const signIn = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     return result;
   } catch (error: any) {
-    console.error("Auth Fail Details:", {
+    console.error("Detailed Auth Failure:", {
       code: error.code,
       message: error.message,
-      keyLength: config.apiKey?.length,
-      keyPrefix: config.apiKey ? config.apiKey.substring(0, 4) : 'none',
-      domain: config.authDomain
+      actualKeyEnd: config.apiKey ? config.apiKey.slice(-3) : 'none',
+      expectedKeyEnd: "tyg" // Based on user provided key
     });
 
     if (error.code === 'auth/api-key-not-valid') {
-      alert("Invalid Firebase API Key. Please verify your Netlify environment variables (check for trailing COMMAS or QUOTES) and trigger a new 'Deploy' with 'Clear cache'.");
+      alert("Invalid API Key detected. Your key is " + config.apiKey?.length + " chars long and ends with '" + config.apiKey?.slice(-2) + "'. Is this correct? Check your Netlify variables.");
     } else {
       alert(`Entry denied: ${error.message}`);
     }

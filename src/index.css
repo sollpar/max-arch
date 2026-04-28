@@ -1,22 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   
   --color-axiom-bg: #FFFFFF;
   --color-axiom-ink: #000000;
-  --color-axiom-muted: #E5E5E5; 
+  --color-axiom-muted: #F5F5F5; 
   --color-axiom-pulse: #000000;
   --color-axiom-warning: #FF3333;
-  --color-axiom-accent: #F9F9F9;
+  --color-axiom-accent: #FAFAFA;
 
-  /* Category Colors - grayscale for artistic minimalism as requested earlier */
-  --color-cat-work: #000000;
-  --color-cat-growth: #666666;
-  --color-cat-personal: #999999;
-  --color-cat-other: #CCCCCC;
+  /* Category Colors */
+  --color-cat-work: #4F46E5;
+  --color-cat-growth: #10B981;
+  --color-cat-personal: #F59E0B;
+  --color-cat-other: #6B7280;
 }
 
 @layer base {

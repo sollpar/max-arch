@@ -162,7 +162,7 @@ export default function AchievementList({ achievements }: ListProps) {
                         </form>
                       ) : confirmDelete === item.id ? (
                         <div className="flex items-center justify-end gap-3 py-1">
-                          <span className="text-[8.5px] font-mono text-axiom-warning lowercase italic shrink-0 tracking-tighter">confirm_delete?</span>
+                          <span className="text-[8px] font-mono text-axiom-warning lowercase italic shrink-0 tracking-tighter">confirm_delete?</span>
                           <div className="flex items-center gap-1.5">
                             <button 
                               onClick={() => item.id && handleDelete(item.id)}
@@ -184,29 +184,29 @@ export default function AchievementList({ achievements }: ListProps) {
                             {item.text}
                           </p>
                           
-                          <div className="flex items-center gap-3 shrink-0">
-                            <span className={`text-[8.5px] font-mono font-normal lowercase tracking-tighter opacity-30 transition-opacity group-hover:opacity-100 ${getTypeColor(item.type)}`}>
-                              #{item.type}
-                            </span>
-                            
+                          <div className="flex items-center gap-2.5 shrink-0">
                             {isOwner && (
-                              <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-1.5">
+                              <div className="flex items-center opacity-20 group-hover:opacity-100 transition-opacity gap-1.5 pt-0.5">
                                 <button 
                                   onClick={() => startEdit(item)}
-                                  className="text-neutral-300 hover:text-black transition-all cursor-pointer"
+                                  className="text-neutral-400 hover:text-black transition-all cursor-pointer"
                                   title="edit"
                                 >
-                                  <Edit3 size={9} strokeWidth={1} />
+                                  <Edit3 size={9} strokeWidth={1.5} />
                                 </button>
                                 <button 
                                   onClick={() => setConfirmDelete(item.id || null)}
-                                  className="text-neutral-300 hover:text-axiom-warning transition-all cursor-pointer"
+                                  className="text-neutral-400 hover:text-axiom-warning transition-all cursor-pointer"
                                   title="delete"
                                 >
-                                  <X size={9} strokeWidth={1} />
+                                  <X size={9} strokeWidth={1.5} />
                                 </button>
                               </div>
                             )}
+
+                            <span className={`text-[8.5px] font-mono font-normal lowercase tracking-tighter opacity-30 transition-opacity group-hover:opacity-100 ${getTypeColor(item.type)}`}>
+                              #{item.type}
+                            </span>
                           </div>
                         </div>
                       )}

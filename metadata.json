@@ -1,6 +1,6 @@
 {
-  "name": "Sync Log",
-  "description": "a record of units committed to the timeline. minimalist achievement pulse.",
+  "name": "Pulse",
+  "description": "a record of units committed to the timeline. minimalist achievement tracker.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

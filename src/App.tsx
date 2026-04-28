@@ -121,7 +121,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <div className={`w-1.5 h-1.5 rounded-full animate-pulse transition-colors duration-1000 ${getPulseColor()}`} />
             <h1 className="text-[11px] font-mono font-medium tracking-[0.05em] lowercase opacity-40">
-              max / archive
+              max / pulse
             </h1>
           </div>
           
@@ -202,8 +202,8 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mt-8 pb-6 text-[8px] font-mono text-neutral-200 lowercase tracking-widest">
-        &copy; {new Date().getFullYear()} max
+      <footer className="mt-6 pb-6 text-[8px] font-mono text-neutral-200 lowercase tracking-widest">
+        &copy; {new Date().getFullYear()} max // pulse
       </footer>
     </div>
   );

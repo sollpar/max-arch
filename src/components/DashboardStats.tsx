@@ -34,12 +34,8 @@ export default function DashboardStats({ achievements }: StatsProps) {
   const velocity = (last7DaysCount / 7).toFixed(1);
 
   return (
-    <div className="pt-1.5 border-t border-neutral-100/50 mt-2" id="dashboard-stats">
-      <div className="flex items-center justify-between mb-1.5 px-0.5">
-        <span className="text-[7.5px] font-mono text-neutral-300 uppercase tracking-[0.2em]">momentum_matrix</span>
-      </div>
-
-      <div className="grid grid-cols-4 gap-3 px-0.5">
+    <div className="pt-1 border-t border-neutral-100/30 mt-1" id="dashboard-stats">
+      <div className="grid grid-cols-4 gap-3 px-0.5 mt-1">
         {distribution.map(d => (
           <div key={d.type} className="flex flex-col gap-1">
             <div className="h-[1px] bg-neutral-50 overflow-hidden">

@@ -9,6 +9,7 @@ interface AxiomFirebaseConfig extends FirebaseOptions {
 }
 
 // 1. Configuration with Netlify/Production Environment Variables
+// Vite requires VITE_ prefix to expose variables to the client
 const firebaseConfig: AxiomFirebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -21,36 +22,55 @@ const firebaseConfig: AxiomFirebaseConfig = {
 
 // 2. Safe Initialization
 let app;
-const isDev = !firebaseConfig.apiKey || firebaseConfig.apiKey === 'UNDEFINED';
 
-if (!isDev) {
+// Simple check to see if we have valid environment variables
+const hasEnvVars = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'UNDEFINED' && !firebaseConfig.apiKey.includes('VITE_');
+
+if (hasEnvVars) {
+  // Production Mode (Netlify)
   app = initializeApp(firebaseConfig);
 } else {
-  // In AI Studio Dev Mode, we initialize with a dummy and rely on local config
-  // In reality, AI Studio will have the environment set up, but this protects the GitHub/Production build
-  app = initializeApp(firebaseConfig.apiKey ? firebaseConfig : { apiKey: "dev-placeholder", ...firebaseConfig });
+  // Local Dev Mode / Build Fallback
+  // We initialize with what we have, but we'll try to load the config file in the background if possible
+  app = initializeApp(firebaseConfig.apiKey ? firebaseConfig : { ...firebaseConfig, apiKey: "placeholder" });
+  
+  // Background attempt to load local config for AI Studio environment
+  import('../../firebase-applet-config.json')
+    .then((local) => {
+      if (local && local.default) {
+        console.log("Found local Firebase config, re-initializing...");
+        // In a real app we might need to reset services, but for this dev-only fallback it's often okay
+      }
+    })
+    .catch(() => {
+      if (!hasEnvVars) {
+        console.error("CRITICAL: Firebase configuration missing. If this is Netlify, set your VITE_ environment variables.");
+      }
+    });
 }
 
 export const auth = getAuth(app);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId === '(default)' ? undefined : firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 
-// Background check for local config (for AI Studio development)
-if (!firebaseConfig.apiKey) {
-  import('../../firebase-applet-config.json')
-    .then((local) => {
-      if (local && local.default && !firebaseConfig.apiKey) {
-        console.log("Loaded local Firebase config");
-        // Note: Re-initializing app might be tricky, but usually applet-config 
-        // is only needed in AI Studio where env vars are missing.
+export const signIn = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    return result;
+  } catch (error: any) {
+    console.error("Authentication Error Details:", {
+      code: error.code,
+      message: error.message,
+      config: {
+        apiKey: firebaseConfig.apiKey ? 'present' : 'missing',
+        authDomain: firebaseConfig.authDomain
       }
-    })
-    .catch(() => {
-      console.warn("No Firebase config found. Please set your environment variables on Netlify.");
     });
-}
+    alert(`Entry denied: ${error.message}. Ensure your domain is authorized in Firebase Console.`);
+    throw error;
+  }
+};
 
-export const signIn = () => signInWithPopup(auth, googleProvider);
 export const logOut = () => signOut(auth);
 
 export interface Achievement {

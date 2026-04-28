@@ -27,13 +27,13 @@ service cloud.firestore {
     }
 
     // Achievement Validation
-    function isValidAchievement(data) {
+    function isValidAchievement(data, isUpdate) {
       return data.keys().hasAll(['text', 'timestamp', 'type', 'userId']) &&
-             data.keys().size() == 4 &&
+             data.keys().size() == (isUpdate ? 4 : 4) && // Same keys for now, but could add updatedAt
              data.text is string && data.text.size() > 0 && data.text.size() <= 1000 &&
              data.type in ['work', 'personal', 'growth', 'other'] &&
              data.userId == request.auth.uid &&
-             data.timestamp == request.time;
+             (isUpdate ? true : data.timestamp == request.time);
     }
 
     match /achievements/{achievementId} {
@@ -42,12 +42,13 @@ service cloud.firestore {
       
       // Only the specific owner can write
       allow create: if isOwner('maximion96@gmail.com') && 
-                      isValidAchievement(incoming());
+                      isValidAchievement(incoming(), false);
       
       allow update: if isOwner('maximion96@gmail.com') && 
-                      isValidAchievement(incoming()) &&
+                      isValidAchievement(incoming(), true) &&
                       incoming().userId == existing().userId &&
-                      incoming().timestamp == existing().timestamp; // Immutable fields
+                      incoming().timestamp == existing().timestamp &&
+                      incoming().diff(existing()).affectedKeys().hasOnly(['text', 'type']);
 
       allow delete: if isOwner('maximion96@gmail.com');
     }

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
-import { Achievement, db, handleFirestoreError, OperationType } from '../lib/firebase';
+import { Achievement, db, handleFirestoreError, OperationType, updateDoc } from '../lib/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
-import { X, Trash2, RotateCcw } from 'lucide-react';
+import { X, Edit3, Check } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface ListProps {
@@ -13,6 +13,10 @@ interface ListProps {
 export default function AchievementList({ achievements }: ListProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [editType, setEditType] = useState<Achievement['type']>('work');
+  const [isUpdating, setIsUpdating] = useState(false);
   const isOwner = user?.email === 'maximion96@gmail.com';
 
   const handleDelete = async (id: string) => {
@@ -21,6 +25,32 @@ export default function AchievementList({ achievements }: ListProps) {
       setConfirmDelete(null);
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `achievements/${id}`);
+    }
+  };
+
+  const startEdit = (item: Achievement) => {
+    if (!item.id) return;
+    setEditingId(item.id);
+    setEditValue(item.text);
+    setEditType(item.type);
+  };
+
+  const handleUpdate = async (e?: React.FormEvent, id?: string) => {
+    if (e) e.preventDefault();
+    const docId = id || editingId;
+    if (!docId || !editValue.trim() || isUpdating) return;
+
+    setIsUpdating(true);
+    try {
+      await updateDoc(doc(db, 'achievements', docId), {
+        text: editValue.trim(),
+        type: editType
+      });
+      setEditingId(null);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `achievements/${docId}`);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -51,31 +81,87 @@ export default function AchievementList({ achievements }: ListProps) {
   };
 
   return (
-    <div className="space-y-4" id="achievement-timeline">
+    <div className="space-y-8" id="achievement-timeline">
       <AnimatePresence mode="popLayout">
-        {Object.entries(grouped).map(([date, items]) => (
-          <div key={date} className="relative">
-            <h2 className="text-[7px] font-mono lowercase tracking-tight text-neutral-400 mb-1 border-b border-neutral-50 pb-0.5 w-full flex justify-between items-center">
-              <span>{format(new Date(date), 'MMM dd, yyyy')}</span>
-              <span className="opacity-10">{items.length} units</span>
-            </h2>
-            <div className="space-y-0.5">
-              {items.map((item) => (
+        {Object.entries(grouped).map(([date, items], groupIndex) => (
+          <motion.div 
+            key={date} 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: groupIndex * 0.1 }}
+            className="group/day"
+          >
+            <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 py-1 mb-2 border-b border-neutral-100 flex items-baseline justify-between px-0.5">
+              <h2 className="text-[9px] font-mono lowercase tracking-[0.1em] text-black font-semibold">
+                {format(new Date(date), 'MMM dd, yyyy')}
+              </h2>
+              <span className="text-[5px] font-mono text-neutral-200 uppercase tracking-[0.3em] font-normal">{items.length} units</span>
+            </div>
+            
+            <div className="space-y-1">
+              {items.map((item, i) => (
                 <motion.div
                   key={item.id}
                   layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="group flex items-start gap-4"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: (groupIndex * 0.05) + (i * 0.02) }}
+                  className="group flex items-start gap-4 px-0.5"
                 >
-                  <span className="text-[7px] font-mono text-neutral-300 tracking-tight group-hover:text-black transition-colors cursor-default lowercase w-7 shrink-0 pt-1">
-                    {item.timestamp ? format(item.timestamp.toDate(), 'HH:mm') : '--:--'}
-                  </span>
+                  <div className="flex items-center gap-1.5 w-8 shrink-0 py-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                    <div className="w-[1px] h-3 bg-black" />
+                    <span className="text-[6.5px] font-mono text-black font-medium tracking-tighter">
+                      {item.timestamp ? format(item.timestamp.toDate(), 'HH:mm') : '--:--'}
+                    </span>
+                  </div>
                   
                   <div className="flex-1 flex items-start justify-between gap-3 py-0.5 min-h-[1.5rem]">
-                    {confirmDelete === item.id ? (
+                    {editingId === item.id ? (
+                      <form onSubmit={handleUpdate} className="flex-1 flex flex-col gap-2">
+                        <textarea
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="w-full text-[9px] font-sans font-medium leading-tight tracking-tight text-black bg-neutral-50/50 p-2 border-l border-black focus:ring-0 resize-none min-h-[3rem]"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) handleUpdate(e);
+                            if (e.key === 'Escape') setEditingId(null);
+                          }}
+                        />
+                        <div className="flex items-center justify-between">
+                          <div className="flex gap-1.5">
+                            {(['work', 'growth', 'personal', 'other'] as const).map(t => (
+                              <button
+                                key={t}
+                                type="button"
+                                onClick={() => setEditType(t)}
+                                className={`text-[5px] font-mono lowercase tracking-widest px-1.5 py-0.5 border ${editType === t ? 'bg-black text-white border-black' : 'text-neutral-300 border-neutral-100 hover:border-neutral-200'}`}
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <button 
+                              type="submit"
+                              disabled={isUpdating}
+                              className={`text-black transition-colors ${isUpdating ? 'opacity-20' : 'hover:text-black'}`}
+                            >
+                              <Check size={9} strokeWidth={2.5} />
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => setEditingId(null)}
+                              className="text-neutral-300 hover:text-black transition-colors"
+                            >
+                              <X size={9} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    ) : confirmDelete === item.id ? (
                       <div className="flex items-center gap-3">
-                        <span className="text-[7px] font-mono text-axiom-warning lowercase italic shrink-0 tracking-tighter">confirm deletion?</span>
+                        <span className="text-[7px] font-mono text-axiom-warning lowercase italic shrink-0 tracking-tighter">confirm_deletion?</span>
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => item.id && handleDelete(item.id)}
@@ -93,31 +179,40 @@ export default function AchievementList({ achievements }: ListProps) {
                       </div>
                     ) : (
                       <>
-                        <p className="text-[9.5px] font-sans font-medium leading-tight tracking-tight text-black transition-colors max-w-[210px] break-words">
-                          {item.text}
-                        </p>
-                        
-                        <div className="flex items-center gap-2 shrink-0 pt-1">
-                          <span className={`text-[5.5px] font-mono lowercase tracking-[0.2em] group-hover:opacity-100 opacity-60 transition-colors uppercase ${getTypeColor(item.type)}`}>
+                        <div className="flex-1 flex items-baseline gap-2 max-w-[280px]">
+                          <p className="text-[9px] font-sans font-medium leading-tight tracking-tight text-black">
+                            {item.text}
+                          </p>
+                          <span className={`text-[5px] font-mono lowercase tracking-[0.1em] opacity-30 group-hover:opacity-100 transition-opacity font-bold shrink-0 ${getTypeColor(item.type)}`}>
                             {item.type}
                           </span>
-                          {isOwner && (
+                        </div>
+                        
+                        {isOwner && (
+                          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-0.5">
+                            <button 
+                              onClick={() => startEdit(item)}
+                              className="text-neutral-200 hover:text-black transition-all cursor-pointer p-0.5"
+                              title="edit"
+                            >
+                              <Edit3 size={7} strokeWidth={1} />
+                            </button>
                             <button 
                               onClick={() => setConfirmDelete(item.id || null)}
-                              className="text-neutral-200 hover:text-axiom-warning transition-all cursor-pointer opacity-0 group-hover:opacity-100 p-1 -m-1"
+                              className="text-neutral-200 hover:text-black transition-all cursor-pointer p-0.5"
                               title="delete"
                             >
-                              <X size={6} strokeWidth={1} />
+                              <X size={7} strokeWidth={1} />
                             </button>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
                 </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         ))}
       </AnimatePresence>
     </div>

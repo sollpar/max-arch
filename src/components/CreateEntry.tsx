@@ -66,37 +66,44 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
             autoFocus
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="log unit..."
-            className="w-full bg-transparent border-none outline-none py-0.5 text-[9.5px] font-sans tracking-tight transition-colors placeholder:text-neutral-100 resize-none text-black focus:text-black"
+            placeholder="commit unit..."
+            className="w-full bg-transparent border-none outline-none py-0.5 text-[10px] font-sans font-medium tracking-tight transition-colors placeholder:text-neutral-100 resize-none text-black focus:text-black"
             rows={1}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
           />
-          <div className="flex flex-col gap-2 pt-1 border-t border-neutral-50/50">
-            <div className="flex gap-3">
+          <div className="flex flex-col gap-3 pt-2 border-t border-neutral-100">
+            <div className="flex gap-4">
               {(['work', 'personal', 'growth', 'other'] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setType(t)}
-                  className={`text-[6px] font-mono lowercase tracking-[0.1em] transition-all ${getTypeColor(t)}`}
+                  className={`text-[5px] font-mono lowercase tracking-[0.2em] transition-all hover:text-black ${type === t ? 'text-black font-bold' : 'text-neutral-200'}`}
                 >
-                  [{t}]
+                  {t}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <button
                 type="submit"
                 disabled={!text.trim() || isSubmitting}
-                className="text-[7px] font-mono lowercase tracking-[0.2em] text-neutral-400 hover:text-black disabled:opacity-10 transition-colors"
+                className="text-[6px] font-mono lowercase tracking-[0.3em] text-neutral-400 hover:text-black disabled:opacity-10 transition-colors flex items-center gap-1"
               >
-                {isSubmitting ? 'syncing' : '[commit]'}
+                <div className="w-1 h-2 bg-neutral-100 group-hover:bg-black transition-colors" />
+                {isSubmitting ? 'syncing_data' : 'commit_unit'}
               </button>
               <button
                 type="button"
                 onClick={() => setIsExpanded(false)}
-                className="text-[7px] font-mono lowercase tracking-[0.2em] text-neutral-200 hover:text-black transition-colors"
+                className="text-[6px] font-mono lowercase tracking-[0.3em] text-neutral-200 hover:text-black transition-colors"
               >
-                [discard]
+                abort_sequence
               </button>
             </div>
           </div>

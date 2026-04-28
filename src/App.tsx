@@ -4,6 +4,7 @@ import { Achievement, collection, db, onSnapshot, orderBy, query, limit, startAf
 import AchievementPulse from './components/AchievementPulse';
 import CreateEntry from './components/CreateEntry';
 import AchievementList from './components/AchievementList';
+import DashboardStats from './components/DashboardStats';
 import { motion } from 'motion/react';
 import { LogOut } from 'lucide-react';
 import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
@@ -131,11 +132,10 @@ export default function App() {
 
         <div className="flex flex-col gap-2">
           <p className="text-[8px] text-neutral-400 font-mono leading-relaxed lowercase max-w-[220px] font-light">
-            singular focus. indexed momentum. 
             a record of units committed to the timeline.
           </p>
           
-          <div className="flex items-center gap-3 pt-1 border-t border-neutral-50/50">
+          <div className="flex items-center gap-3 pt-1 border-t border-neutral-100">
             {user ? (
               <div className="flex items-center gap-3">
                 <span className="text-[7px] font-mono text-neutral-300 lowercase tracking-widest">
@@ -157,6 +157,8 @@ export default function App() {
               </button>
             )}
           </div>
+          
+          <DashboardStats achievements={achievements} />
         </div>
 
         <div className="flex gap-4 pt-1 border-b border-neutral-50/50 pb-1.5">
@@ -199,7 +201,7 @@ export default function App() {
       </main>
 
       <footer className="mt-16 pb-8 text-[6px] font-mono text-neutral-200 lowercase tracking-widest">
-        &copy; {new Date().getFullYear()} axiom runtime
+        &copy; {new Date().getFullYear()} max
       </footer>
     </div>
   );

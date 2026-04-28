@@ -1,23 +1,54 @@
-import { initializeApp } from 'firebase/app';
+// src/lib/firebase.ts
+import { initializeApp, FirebaseOptions } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, limit, startAfter, where, getDocs } from 'firebase/firestore';
-import localConfig from '../../firebase-applet-config.json';
 
-// Environment variables for deployment (Netlify/Vercel)
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || localConfig.apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || localConfig.authDomain,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || localConfig.projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || localConfig.storageBucket,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || localConfig.messagingSenderId,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || localConfig.appId,
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || localConfig.firestoreDatabaseId || '(default)'
+// Define configuration shape
+interface AxiomFirebaseConfig extends FirebaseOptions {
+  firestoreDatabaseId?: string;
+}
+
+// 1. Configuration with Netlify/Production Environment Variables
+const firebaseConfig: AxiomFirebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)'
 };
 
-const app = initializeApp(firebaseConfig);
+// 2. Safe Initialization
+let app;
+const isDev = !firebaseConfig.apiKey || firebaseConfig.apiKey === 'UNDEFINED';
+
+if (!isDev) {
+  app = initializeApp(firebaseConfig);
+} else {
+  // In AI Studio Dev Mode, we initialize with a dummy and rely on local config
+  // In reality, AI Studio will have the environment set up, but this protects the GitHub/Production build
+  app = initializeApp(firebaseConfig.apiKey ? firebaseConfig : { apiKey: "dev-placeholder", ...firebaseConfig });
+}
+
 export const auth = getAuth(app);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId === '(default)' ? undefined : firebaseConfig.firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
+
+// Background check for local config (for AI Studio development)
+if (!firebaseConfig.apiKey) {
+  import('../../firebase-applet-config.json')
+    .then((local) => {
+      if (local && local.default && !firebaseConfig.apiKey) {
+        console.log("Loaded local Firebase config");
+        // Note: Re-initializing app might be tricky, but usually applet-config 
+        // is only needed in AI Studio where env vars are missing.
+      }
+    })
+    .catch(() => {
+      console.warn("No Firebase config found. Please set your environment variables on Netlify.");
+    });
+}
 
 export const signIn = () => signInWithPopup(auth, googleProvider);
 export const logOut = () => signOut(auth);

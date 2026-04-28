@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from './hooks/useAuth';
-import { Achievement, collection, db, onSnapshot, orderBy, query, limit, startAfter, where, getDocs, Timestamp } from './lib/firebase';
+import { Achievement, collection, db, onSnapshot, orderBy, query, limit, startAfter, where, getDocs, Timestamp, handleFirestoreError, OperationType } from './lib/firebase';
 import AchievementPulse from './components/AchievementPulse';
 import CreateEntry from './components/CreateEntry';
 import AchievementList from './components/AchievementList';
@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 import { LogOut } from 'lucide-react';
 import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 200;
 
 export default function App() {
   const { user, loading: authLoading, signIn, logOut } = useAuth();
@@ -21,14 +21,21 @@ export default function App() {
 
   // Pulse logic based on activity in last 7 days
   useEffect(() => {
-    const sevenDaysAgo = new Timestamp(Math.floor((Date.now() - 7 * 24 * 60 * 60 * 1000) / 1000), 0);
-    const q = query(collection(db, 'achievements'), where('timestamp', '>=', sevenDaysAgo));
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setRecentCount(snapshot.size);
-    });
+    try {
+      const sevenDaysAgo = new Timestamp(Math.floor((Date.now() - 7 * 24 * 60 * 60 * 1000) / 1000), 0);
+      const q = query(collection(db, 'achievements'), where('timestamp', '>=', sevenDaysAgo));
+      
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        setRecentCount(snapshot.size);
+      }, (error) => {
+        console.warn("Pulse logic error (might need index):", error);
+        // We don't call handleFirestoreError here to avoid crashing the whole app for a minor feature
+      });
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    } catch (e) {
+      console.warn("Pulse setup failed:", e);
+    }
   }, []);
 
   useEffect(() => {
@@ -48,6 +55,9 @@ export default function App() {
       setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
       setHasMore(snapshot.docs.length === PAGE_SIZE);
       setLoading(false);
+    }, (error) => {
+      setLoading(false);
+      handleFirestoreError(error, OperationType.LIST, 'achievements');
     });
 
     return () => unsubscribe();
@@ -79,9 +89,11 @@ export default function App() {
   };
 
   const getPulseColor = () => {
-    if (recentCount === 0) return 'bg-neutral-200';
-    if (recentCount < 4) return 'bg-blue-400';
-    if (recentCount < 11) return 'bg-emerald-400';
+    if (recentCount === 0) return 'bg-neutral-100';
+    if (recentCount < 3) return 'bg-sky-200';
+    if (recentCount < 7) return 'bg-blue-400';
+    if (recentCount < 15) return 'bg-emerald-400';
+    if (recentCount < 30) return 'bg-amber-400';
     return 'bg-violet-500';
   };
 
@@ -147,7 +159,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex gap-4 pt-1 border-b border-neutral-50/50 pb-2">
+        <div className="flex gap-4 pt-1 border-b border-neutral-50/50 pb-1.5">
           {(['all', 'work', 'growth', 'personal', 'other'] as const).map((t) => (
             <button
               key={t}

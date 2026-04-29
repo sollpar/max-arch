@@ -16,7 +16,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["work", "personal", "growth", "other"],
+          "enum": ["work", "personal", "growth", "thought", "other"],
           "description": "Category of the achievement."
         },
         "userId": {

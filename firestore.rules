@@ -31,7 +31,7 @@ service cloud.firestore {
       return data.keys().hasAll(['text', 'timestamp', 'type', 'userId']) &&
              data.keys().size() == (isUpdate ? 4 : 4) && // Same keys for now, but could add updatedAt
              data.text is string && data.text.size() > 0 && data.text.size() <= 1000 &&
-             data.type in ['work', 'personal', 'growth', 'other'] &&
+             data.type in ['work', 'personal', 'growth', 'thought', 'other'] &&
              data.userId == request.auth.uid &&
              (isUpdate ? true : data.timestamp == request.time);
     }

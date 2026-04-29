@@ -7,7 +7,7 @@ interface StatsProps {
 }
 
 export default function DashboardStats({ achievements }: StatsProps) {
-  const types = ['work', 'growth', 'personal', 'other'] as const;
+  const types = ['work', 'growth', 'personal', 'thought', 'other'] as const;
   const distribution = types.map(type => ({
     type,
     count: achievements.filter(a => a.type === type).length
@@ -35,7 +35,7 @@ export default function DashboardStats({ achievements }: StatsProps) {
 
   return (
     <div className="pt-1 border-t border-neutral-100/30 mt-1" id="dashboard-stats">
-      <div className="grid grid-cols-4 gap-3 px-0.5 mt-1">
+      <div className="grid grid-cols-5 gap-3 px-0.5 mt-1">
         {distribution.map(d => (
           <div key={d.type} className="flex flex-col gap-1">
             <div className="h-[1px] bg-neutral-50 overflow-hidden">
@@ -43,7 +43,8 @@ export default function DashboardStats({ achievements }: StatsProps) {
                 className={`h-full transition-all duration-1000 ease-out opacity-60 ${
                   d.type === 'work' ? 'bg-cat-work' : 
                   d.type === 'growth' ? 'bg-cat-growth' : 
-                  d.type === 'personal' ? 'bg-cat-personal' : 'bg-cat-other'
+                  d.type === 'personal' ? 'bg-cat-personal' : 
+                  d.type === 'thought' ? 'bg-cat-thought' : 'bg-cat-other'
                 }`}
                 style={{ width: `${(d.count / maxCount) * 100}%` }}
               />

@@ -9,7 +9,7 @@ interface CreateEntryProps {
 
 export default function CreateEntry({ userId }: CreateEntryProps) {
   const [text, setText] = useState('');
-  const [type, setType] = useState<'work' | 'personal' | 'growth' | 'other'>('work');
+  const [type, setType] = useState<'work' | 'personal' | 'growth' | 'other' | 'thought'>('work');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,6 +40,7 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
       case 'work': return 'text-cat-work font-bold';
       case 'growth': return 'text-cat-growth font-bold';
       case 'personal': return 'text-cat-personal font-bold';
+      case 'thought': return 'text-cat-thought font-bold';
       default: return 'text-black font-bold';
     }
   };
@@ -53,7 +54,7 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
           id="expand-btn"
         >
           <Plus size={10} strokeWidth={1.5} />
-          <span className="text-[10px] font-mono tracking-tight lowercase font-medium italic opacity-60 group-hover:opacity-100">add increment</span>
+          <span className="text-[10px] font-mono tracking-tight lowercase font-medium italic opacity-60 group-hover:opacity-100">add increment / thought</span>
         </button>
       ) : (
         <motion.form
@@ -66,9 +67,9 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
             autoFocus
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="commit unit..."
-            className="w-full bg-transparent border-none outline-none py-0.5 text-[11.5px] font-sans font-medium leading-tight tracking-tight transition-colors placeholder:text-neutral-100 resize-none text-black focus:text-black"
-            rows={1}
+            placeholder={type === 'thought' ? "share a thought..." : "commit unit..."}
+            className={`w-full bg-transparent border-none outline-none py-0.5 leading-tight tracking-tight transition-all placeholder:text-neutral-100 resize-none text-black focus:text-black ${type === 'thought' ? 'font-sans text-[9px] italic text-neutral-400 font-medium' : 'font-sans text-[11.5px] font-medium'}`}
+            rows={2}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -78,7 +79,7 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
           />
           <div className="flex flex-col gap-2 pt-1.5 border-t border-neutral-100/50">
             <div className="flex gap-4">
-              {(['work', 'personal', 'growth', 'other'] as const).map((t) => (
+              {(['work', 'personal', 'growth', 'thought', 'other'] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -86,8 +87,9 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
                   className={`text-[9px] font-mono lowercase tracking-tight transition-all ${
                     type === t 
                       ? t === 'work' ? 'text-cat-work font-bold' 
-                        : t === 'growth' ? 'text-cat-growth font-bold'
+                         : t === 'growth' ? 'text-cat-growth font-bold'
                         : t === 'personal' ? 'text-cat-personal font-bold'
+                        : t === 'thought' ? 'text-cat-thought font-bold'
                         : 'text-neutral-600 font-bold'
                       : 'text-neutral-300 hover:text-neutral-500'
                   }`}
@@ -103,7 +105,7 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
                 className="text-[9px] font-mono lowercase tracking-[0.2em] text-neutral-400 hover:text-black disabled:opacity-10 transition-colors flex items-center gap-1.5"
               >
                 <div className="w-[1px] h-3 bg-neutral-200 group-hover:bg-black transition-colors" />
-                {isSubmitting ? 'syncing...' : 'commit_unit'}
+                {isSubmitting ? 'syncing...' : type === 'thought' ? 'sync_thought' : 'commit_unit'}
               </button>
               <button
                 type="button"

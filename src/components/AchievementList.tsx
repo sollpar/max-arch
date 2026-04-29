@@ -76,6 +76,7 @@ export default function AchievementList({ achievements }: ListProps) {
       case 'work': return 'text-cat-work';
       case 'growth': return 'text-cat-growth';
       case 'personal': return 'text-cat-personal';
+      case 'thought': return 'text-cat-thought';
       default: return 'text-cat-other';
     }
   };
@@ -110,7 +111,7 @@ export default function AchievementList({ achievements }: ListProps) {
                 >
                   <div className="flex items-start gap-4 px-0.5">
                     <div className="flex items-center gap-2 w-12 shrink-0 py-1 opacity-40 group-hover:opacity-100 transition-opacity">
-                      <div className="w-[1px] h-2.5 bg-black" />
+                      <div className={`w-[1px] h-2.5 ${item.type === 'thought' ? 'bg-cat-thought border-l border-dotted border-cat-thought' : 'bg-black'}`} />
                       <span className="text-[8.5px] font-mono text-black font-normal tracking-tighter">
                         {item.timestamp ? format(item.timestamp.toDate(), 'HH:mm') : '--:--'}
                       </span>
@@ -131,7 +132,7 @@ export default function AchievementList({ achievements }: ListProps) {
                           />
                           <div className="flex items-center justify-between">
                             <div className="flex gap-1">
-                              {(['work', 'growth', 'personal', 'other'] as const).map(t => (
+                              {(['work', 'growth', 'personal', 'thought', 'other'] as const).map(t => (
                                 <button
                                   key={t}
                                   type="button"
@@ -179,14 +180,14 @@ export default function AchievementList({ achievements }: ListProps) {
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-start justify-between gap-4 py-0.5">
-                          <p className="text-[11px] font-sans font-medium leading-tight tracking-tight text-black flex-1">
+                        <div className={`flex items-start justify-between gap-4 py-0.5 ${item.type === 'thought' ? 'pl-4 border-l border-cat-thought/20 ml-1' : ''}`}>
+                          <p className={`font-sans leading-tight tracking-tight flex-1 ${item.type === 'thought' ? 'text-[8.5px] italic text-neutral-400 font-medium' : 'text-[11px] text-black font-medium'}`}>
                             {item.text}
                           </p>
                           
                           <div className="flex items-center gap-2.5 shrink-0">
                             {isOwner && (
-                              <div className="flex items-center opacity-20 group-hover:opacity-100 transition-opacity gap-1.5 pt-0.5">
+                              <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-1.5 pt-0.5">
                                 <button 
                                   onClick={() => startEdit(item)}
                                   className="text-neutral-400 hover:text-black transition-all cursor-pointer"

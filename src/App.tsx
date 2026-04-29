@@ -164,7 +164,7 @@ export default function App() {
         </div>
 
         <div className="flex gap-4 pt-0.5 border-b border-neutral-100 pb-1">
-          {(['all', 'work', 'growth', 'personal', 'other'] as const).map((t) => (
+          {(['all', 'work', 'growth', 'personal', 'thought', 'other'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setFilter(t)}

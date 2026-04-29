@@ -17,6 +17,7 @@
   --color-cat-growth: #10B981;
   --color-cat-personal: #F59E0B;
   --color-cat-other: #6B7280;
+  --color-cat-thought: #94A3B8; /* Muted Slate/Indigo */
 }
 
 @layer base {

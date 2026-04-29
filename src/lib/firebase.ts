@@ -76,7 +76,7 @@ export interface Achievement {
   id?: string;
   text: string;
   timestamp: Timestamp;
-  type: 'work' | 'personal' | 'growth' | 'other';
+  type: 'work' | 'personal' | 'growth' | 'other' | 'thought';
   userId: string;
 }
 

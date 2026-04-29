@@ -49,8 +49,9 @@ service cloud.firestore {
       allow update: if isOwner('maximion96@gmail.com') && 
                       isValidAchievement(incoming(), true) &&
                       incoming().userId == existing().userId &&
-                      incoming().timestamp == existing().timestamp &&
-                      incoming().diff(existing()).affectedKeys().hasOnly(['text', 'type', 'status']);
+                      // Allow timestamp update only if we're publishing (status goes from draft to published)
+                      (incoming().timestamp == existing().timestamp || (existing().get('status', 'draft') == 'draft' && incoming().status == 'published' && incoming().timestamp == request.time)) &&
+                      incoming().diff(existing()).affectedKeys().hasOnly(['text', 'type', 'status', 'timestamp']);
 
       allow delete: if isOwner('maximion96@gmail.com');
     }

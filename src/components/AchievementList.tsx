@@ -80,8 +80,9 @@ export default function AchievementList({ achievements }: ListProps) {
 
   // Group by date
   const grouped = achievements.reduce((acc, curr) => {
-    if (!curr.timestamp) return acc;
-    const date = format(curr.timestamp.toDate(), 'yyyy-MM-dd');
+    // During serverTimestamp() sync, timestamp might be null briefly
+    const dateObj = curr.timestamp ? curr.timestamp.toDate() : new Date();
+    const date = format(dateObj, 'yyyy-MM-dd');
     if (!acc[date]) acc[date] = [];
     acc[date].push(curr);
     return acc;
@@ -207,7 +208,8 @@ export default function AchievementList({ achievements }: ListProps) {
                                 {item.status === 'draft' && (
                                   <button 
                                     onClick={() => handlePublish(item.id!)}
-                                    className="text-cat-thought hover:text-black transition-all cursor-pointer"
+                                    disabled={isUpdating}
+                                    className={`text-cat-thought transition-all cursor-pointer ${isUpdating ? 'opacity-20' : 'hover:text-black'}`}
                                     title="publish"
                                   >
                                     <Rocket size={9} strokeWidth={1.5} />

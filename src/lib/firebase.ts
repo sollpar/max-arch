@@ -78,6 +78,7 @@ export interface Achievement {
   timestamp: Timestamp;
   type: 'work' | 'personal' | 'growth' | 'other' | 'thought';
   userId: string;
+  status?: 'published' | 'draft';
 }
 
 export enum OperationType {

@@ -13,7 +13,7 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, forcedStatus?: 'published' | 'draft') => {
     e.preventDefault();
     if (!text.trim() || isSubmitting) return;
 
@@ -24,6 +24,7 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
         type,
         userId,
         timestamp: serverTimestamp(),
+        status: forcedStatus || 'published',
       });
       setText('');
       setIsExpanded(false);
@@ -102,11 +103,24 @@ export default function CreateEntry({ userId }: CreateEntryProps) {
               <button
                 type="submit"
                 disabled={!text.trim() || isSubmitting}
-                className="text-[9px] font-mono lowercase tracking-[0.2em] text-neutral-400 hover:text-black disabled:opacity-10 transition-colors flex items-center gap-1.5"
+                className="text-[9px] font-mono lowercase tracking-[0.2em] text-black hover:opacity-70 disabled:opacity-10 transition-colors flex items-center gap-1.5"
               >
-                <div className="w-[1px] h-3 bg-neutral-200 group-hover:bg-black transition-colors" />
-                {isSubmitting ? 'syncing...' : type === 'thought' ? 'sync_thought' : 'commit_unit'}
+                <div className="w-[1px] h-3 bg-black transition-colors" />
+                {isSubmitting ? 'syncing...' : type === 'thought' ? 'publish_thought' : 'commit_unit'}
               </button>
+
+              {type === 'thought' && (
+                <button
+                  type="button"
+                  onClick={(e) => handleSubmit(e, 'draft')}
+                  disabled={!text.trim() || isSubmitting}
+                  className="text-[9px] font-mono lowercase tracking-[0.2em] text-neutral-400 hover:text-black disabled:opacity-10 transition-colors flex items-center gap-1.5"
+                >
+                  <div className="w-[1px] h-3 bg-neutral-200 group-hover:bg-black transition-colors" />
+                  {isSubmitting ? '...' : 'save_draft'}
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => setIsExpanded(false)}

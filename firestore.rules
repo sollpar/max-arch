@@ -28,17 +28,19 @@ service cloud.firestore {
 
     // Achievement Validation
     function isValidAchievement(data, isUpdate) {
-      return data.keys().hasAll(['text', 'timestamp', 'type', 'userId']) &&
-             data.keys().size() == (isUpdate ? 4 : 4) && // Same keys for now, but could add updatedAt
+      let coreKeys = ['text', 'timestamp', 'type', 'userId'];
+      return data.keys().hasAll(coreKeys) &&
+             (data.keys().size() == 4 || (data.keys().size() == 5 && data.keys().hasAll(['status']))) &&
              data.text is string && data.text.size() > 0 && data.text.size() <= 1000 &&
              data.type in ['work', 'personal', 'growth', 'thought', 'other'] &&
              data.userId == request.auth.uid &&
-             (isUpdate ? true : data.timestamp == request.time);
+             (isUpdate ? true : data.timestamp == request.time) &&
+             (!data.keys().hasAll(['status']) || data.status in ['published', 'draft']);
     }
 
     match /achievements/{achievementId} {
-      // Public read for the art site feel
-      allow read: if true;
+      // Public read for published, private for drafts
+      allow read: if (resource.data.get('status', 'published') == 'published') || isOwner('maximion96@gmail.com');
       
       // Only the specific owner can write
       allow create: if isOwner('maximion96@gmail.com') && 
@@ -48,7 +50,7 @@ service cloud.firestore {
                       isValidAchievement(incoming(), true) &&
                       incoming().userId == existing().userId &&
                       incoming().timestamp == existing().timestamp &&
-                      incoming().diff(existing()).affectedKeys().hasOnly(['text', 'type']);
+                      incoming().diff(existing()).affectedKeys().hasOnly(['text', 'type', 'status']);
 
       allow delete: if isOwner('maximion96@gmail.com');
     }

@@ -3,8 +3,9 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 import { Achievement, db, handleFirestoreError, OperationType, updateDoc } from '../lib/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
-import { X, Edit3, Check } from 'lucide-react';
+import { X, Edit3, Check, Rocket } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { serverTimestamp } from 'firebase/firestore';
 
 interface ListProps {
   achievements: Achievement[];
@@ -49,6 +50,21 @@ export default function AchievementList({ achievements }: ListProps) {
       setEditingId(null);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `achievements/${docId}`);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handlePublish = async (id: string) => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+    try {
+      await updateDoc(doc(db, 'achievements', id), {
+        status: 'published',
+        timestamp: serverTimestamp()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `achievements/${id}`);
     } finally {
       setIsUpdating(false);
     }
@@ -188,6 +204,15 @@ export default function AchievementList({ achievements }: ListProps) {
                           <div className="flex items-center gap-2.5 shrink-0">
                             {isOwner && (
                               <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-1.5 pt-0.5">
+                                {item.status === 'draft' && (
+                                  <button 
+                                    onClick={() => handlePublish(item.id!)}
+                                    className="text-cat-thought hover:text-black transition-all cursor-pointer"
+                                    title="publish"
+                                  >
+                                    <Rocket size={9} strokeWidth={1.5} />
+                                  </button>
+                                )}
                                 <button 
                                   onClick={() => startEdit(item)}
                                   className="text-neutral-400 hover:text-black transition-all cursor-pointer"

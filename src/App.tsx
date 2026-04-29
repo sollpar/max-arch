@@ -19,6 +19,7 @@ export default function App() {
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [recentCount, setRecentCount] = useState(0);
+  const [isShowingDrafts, setIsShowingDrafts] = useState(false);
 
   // Pulse logic based on activity in last 7 days
   useEffect(() => {
@@ -112,7 +113,19 @@ export default function App() {
     );
   }
 
-  const filteredAchievements = achievements.filter(a => filter === 'all' || a.type === filter);
+  const filteredAchievements = achievements.filter(a => {
+    const isOwner = user?.email === 'maximion96@gmail.com';
+    const status = a.status || 'published';
+    
+    // Regular users ONLY see published
+    if (!isOwner) return status === 'published' && (filter === 'all' || a.type === filter);
+    
+    // Owner sees depending on toggle
+    const matchesStatus = isShowingDrafts ? status === 'draft' : status === 'published';
+    const matchesType = filter === 'all' || a.type === filter;
+    
+    return matchesStatus && matchesType;
+  });
 
   return (
     <div className="min-h-screen max-w-[460px] mx-auto px-10 py-8 selection:bg-black selection:text-white">
@@ -159,22 +172,36 @@ export default function App() {
           </div>
           
           <div className="-mt-2">
-            <DashboardStats achievements={achievements} />
+            <DashboardStats achievements={achievements.filter(a => (a.status || 'published') === 'published')} />
           </div>
         </div>
 
-        <div className="flex gap-4 pt-0.5 border-b border-neutral-100 pb-1">
-          {(['all', 'work', 'growth', 'personal', 'thought', 'other'] as const).map((t) => (
+        <div className="flex gap-4 pt-0.5 border-b border-neutral-100 pb-1 items-center">
+          <div className="flex gap-4 flex-1">
+            {(['all', 'work', 'growth', 'personal', 'thought', 'other'] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setFilter(t)}
+                className={`text-[9px] font-mono lowercase tracking-tighter transition-all ${
+                  filter === t ? 'text-black font-semibold' : 'text-neutral-300 hover:text-neutral-500'
+                }`}
+              >
+                #{t}
+              </button>
+            ))}
+          </div>
+
+          {user?.email === 'maximion96@gmail.com' && (
             <button
-              key={t}
-              onClick={() => setFilter(t)}
-              className={`text-[9px] font-mono lowercase tracking-tighter transition-all ${
-                filter === t ? 'text-black font-semibold' : 'text-neutral-300 hover:text-neutral-500'
+              onClick={() => setIsShowingDrafts(!isShowingDrafts)}
+              className={`text-[9px] font-mono lowercase tracking-tighter transition-all flex items-center gap-1.5 ${
+                isShowingDrafts ? 'text-cat-thought font-bold' : 'text-neutral-300 hover:text-neutral-500'
               }`}
             >
-              #{t}
+              <div className={`w-1 h-1 rounded-full ${isShowingDrafts ? 'bg-cat-thought animate-pulse' : 'bg-neutral-200'}`} />
+              {isShowingDrafts ? 'viewing_queue' : 'view_queue'}
             </button>
-          ))}
+          )}
         </div>
       </header>
 

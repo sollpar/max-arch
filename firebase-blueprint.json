@@ -22,6 +22,11 @@
         "userId": {
           "type": "string",
           "description": "The UID of the user who posted."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["published", "draft"],
+          "description": "Visibility status of the entry."
         }
       },
       "required": ["text", "timestamp", "type", "userId"]
